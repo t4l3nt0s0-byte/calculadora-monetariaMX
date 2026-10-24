@@ -1,0 +1,1080 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Caja MXN — Calculadora de efectivo</title>
+<meta name="description" content="Calculadora interactiva de efectivo en pesos mexicanos: desglose en billetes y monedas, arqueo de caja, control de ingresos y egresos con gráficos y reporte mensual en PDF." />
+
+<!-- Tipografías -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+
+<!-- Librerías (CDN) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js" defer></script>
+
+<style>
+  :root{
+    /* Marca */
+    --brand:#0f6d63;          /* pino/teal — estructura y marca */
+    --brand-deep:#0a4a43;
+    --brand-soft:#e6f3f1;
+    --accent:#e0a938;         /* ámbar — acento puntual */
+    /* Semánticos (reservados para dinero) */
+    --in:#0f9d6e;             /* ingreso */
+    --in-soft:#e4f6ef;
+    --out:#e5484d;            /* egreso */
+    --out-soft:#fdecec;
+    /* Superficies */
+    --bg:#f3f5f6;
+    --panel:#ffffff;
+    --panel-2:#f8fafa;
+    --ink:#15211f;
+    --muted:#5e6f6b;
+    --faint:#8a9995;
+    --line:#e2e8e6;
+    --line-strong:#cdd8d5;
+    --shadow:0 1px 2px rgba(16,40,36,.04), 0 8px 24px rgba(16,40,36,.06);
+    --radius:16px;
+    --radius-sm:10px;
+  }
+  :root[data-theme="dark"]{
+    --brand:#2fb8a6;
+    --brand-deep:#0c201d;
+    --brand-soft:#15302c;
+    --accent:#f0bd5a;
+    --in:#2fc48d;
+    --in-soft:#13302a;
+    --out:#f26b6f;
+    --out-soft:#331a1c;
+    --bg:#0c1413;
+    --panel:#121d1b;
+    --panel-2:#0f1817;
+    --ink:#e6efec;
+    --muted:#9db0ab;
+    --faint:#6d807b;
+    --line:#223230;
+    --line-strong:#2f4441;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    font-size:15px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{font-family:"Space Grotesk","Inter",sans-serif;letter-spacing:-.01em}
+  .money{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+  button{font-family:inherit}
+  input,select,textarea{font-family:inherit;font-size:15px;color:var(--ink)}
+  a{color:var(--brand)}
+
+  /* ---------- Encabezado ---------- */
+  header.app{
+    position:sticky;top:0;z-index:40;
+    background:linear-gradient(180deg, var(--panel), var(--panel));
+    border-bottom:1px solid var(--line);
+    backdrop-filter:saturate(1.1);
+  }
+  .bar{max-width:1120px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:14px}
+  .brand{display:flex;align-items:center;gap:11px;min-width:0}
+  .logo{
+    width:38px;height:38px;border-radius:11px;flex:none;
+    background:radial-gradient(120% 120% at 20% 10%, var(--brand) 0%, var(--brand-deep) 100%);
+    display:grid;place-items:center;color:#fff;font-family:"Space Grotesk";font-weight:700;font-size:19px;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);
+  }
+  .brand .name{font-family:"Space Grotesk";font-weight:700;font-size:18px;line-height:1}
+  .brand .sub{color:var(--muted);font-size:12.5px;margin-top:2px}
+  .spacer{flex:1}
+  .theme-btn{
+    border:1px solid var(--line-strong);background:var(--panel-2);color:var(--muted);
+    width:40px;height:40px;border-radius:11px;cursor:pointer;display:grid;place-items:center;font-size:17px;
+    transition:border-color .15s, color .15s;
+  }
+  .theme-btn:hover{border-color:var(--brand);color:var(--brand)}
+
+  /* ---------- Tabs ---------- */
+  nav.tabs{max-width:1120px;margin:0 auto;padding:0 20px;display:flex;gap:4px;overflow-x:auto}
+  .tab{
+    appearance:none;border:0;background:transparent;color:var(--muted);
+    padding:12px 15px 13px;cursor:pointer;font-weight:600;font-size:14px;white-space:nowrap;
+    border-bottom:2.5px solid transparent;display:flex;align-items:center;gap:8px;
+  }
+  .tab .ic{font-size:16px}
+  .tab:hover{color:var(--ink)}
+  .tab.active{color:var(--brand);border-bottom-color:var(--brand)}
+
+  /* ---------- Layout ---------- */
+  main{max-width:1120px;margin:0 auto;padding:24px 20px 80px}
+  .panel{display:none}
+  .panel.active{display:block;animation:in .22s ease}
+  @keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){.panel.active{animation:none}}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .card.pad{padding:22px}
+  .grid{display:grid;gap:18px}
+  @media(min-width:860px){.grid.cols2{grid-template-columns:420px 1fr}}
+
+  .card-title{font-family:"Space Grotesk";font-weight:600;font-size:16px;margin:0 0 3px}
+  .card-note{color:var(--muted);font-size:13px;margin:0 0 16px}
+
+  label.fld{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:6px}
+  .input, select.input, textarea.input{
+    width:100%;padding:11px 13px;border:1px solid var(--line-strong);border-radius:var(--radius-sm);
+    background:var(--panel-2);outline:none;transition:border-color .15s, box-shadow .15s;
+  }
+  .input:focus, select.input:focus, textarea.input:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+  textarea.input{resize:vertical;min-height:44px}
+
+  .money-input{position:relative}
+  .money-input .peso{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--faint);font-weight:600}
+  .money-input input{
+    width:100%;padding:16px 16px 16px 30px;border:1px solid var(--line-strong);border-radius:12px;
+    background:var(--panel-2);outline:none;font-family:"Space Grotesk";font-weight:600;font-size:26px;
+    font-variant-numeric:tabular-nums;transition:border-color .15s, box-shadow .15s;
+  }
+  .money-input input:focus{border-color:var(--brand);box-shadow:0 0 0 4px var(--brand-soft)}
+
+  .btn{
+    appearance:none;border:1px solid transparent;border-radius:11px;padding:11px 16px;font-weight:600;font-size:14px;
+    cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:filter .15s, background .15s, border-color .15s;
+  }
+  .btn.primary{background:var(--brand);color:#fff}
+  .btn.primary:hover{filter:brightness(1.07)}
+  .btn.ghost{background:var(--panel-2);border-color:var(--line-strong);color:var(--ink)}
+  .btn.ghost:hover{border-color:var(--brand);color:var(--brand)}
+  .btn.block{width:100%}
+  .btn.sm{padding:8px 12px;font-size:13px}
+  .btn[disabled]{opacity:.5;cursor:not-allowed}
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .seg{display:inline-flex;background:var(--panel-2);border:1px solid var(--line-strong);border-radius:11px;padding:3px}
+  .seg button{border:0;background:transparent;color:var(--muted);padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:13px}
+  .seg button.on{background:var(--brand);color:#fff}
+
+  .denchip{
+    display:flex;align-items:center;gap:8px;border:1px solid var(--line-strong);background:var(--panel-2);
+    padding:7px 11px 7px 8px;border-radius:999px;cursor:pointer;font-weight:600;font-size:13px;user-select:none;
+    transition:border-color .12s, background .12s;
+  }
+  .denchip .dot{width:14px;height:14px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+  .denchip.off{opacity:.4}
+  .denchip.off .dot{filter:grayscale(1)}
+  .denchip:hover{border-color:var(--brand)}
+  .denchip .t{font-size:10px;color:var(--faint);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+
+  /* Resultados desglose */
+  .result-head{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:4px}
+  .result-total{font-family:"Space Grotesk";font-weight:700;font-size:30px}
+  .combo{border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:14px;background:var(--panel-2)}
+  .combo.best{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+  .combo .chead{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px 14px;border-bottom:1px solid var(--line)}
+  .combo .chead .lbl{font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:9px}
+  .badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--brand);color:#fff}
+  .badge.soft{background:var(--brand-soft);color:var(--brand)}
+  .combo .pieces{color:var(--muted);font-size:12.5px;font-weight:600}
+  .piece-row{display:flex;align-items:center;gap:12px;padding:9px 14px;border-top:1px dashed var(--line)}
+  .piece-row:first-child{border-top:0}
+  .piece-row .dot{width:16px;height:16px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+  .piece-row .pden{width:70px;font-weight:700}
+  .piece-row .pcnt{flex:1;color:var(--muted);font-size:13px}
+  .piece-row .psub{font-weight:700;font-variant-numeric:tabular-nums}
+  .piece-row .ptype{font-size:10px;color:var(--faint);text-transform:uppercase;font-weight:700;letter-spacing:.04em;width:52px;text-align:right}
+
+  /* Arqueo */
+  .count-grid{display:grid;grid-template-columns:1fr;gap:10px}
+  @media(min-width:560px){.count-grid{grid-template-columns:1fr 1fr}}
+  .count-row{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;padding:9px 11px;background:var(--panel-2)}
+  .count-row .dot{width:18px;height:18px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+  .count-row .den{width:62px;font-weight:700;font-variant-numeric:tabular-nums}
+  .stepper{display:flex;align-items:center;gap:0;margin-left:auto}
+  .stepper button{width:30px;height:32px;border:1px solid var(--line-strong);background:var(--panel);color:var(--ink);cursor:pointer;font-size:16px;font-weight:700}
+  .stepper button:first-child{border-radius:9px 0 0 9px}
+  .stepper button:last-child{border-radius:0 9px 9px 0}
+  .stepper input{width:54px;height:32px;text-align:center;border:1px solid var(--line-strong);border-left:0;border-right:0;background:var(--panel);outline:none;font-weight:700;font-variant-numeric:tabular-nums}
+  .count-row .rsub{width:92px;text-align:right;font-weight:700;font-variant-numeric:tabular-nums;color:var(--muted)}
+
+  /* KPIs */
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  @media(max-width:620px){.kpis{grid-template-columns:1fr}}
+  .kpi{border:1px solid var(--line);border-radius:14px;padding:15px 16px;background:var(--panel)}
+  .kpi .k{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .kpi .v{font-family:"Space Grotesk";font-weight:700;font-size:25px;margin-top:5px;font-variant-numeric:tabular-nums}
+  .kpi.in .v{color:var(--in)} .kpi.out .v{color:var(--out)}
+
+  /* Tabla movimientos */
+  .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th,td{padding:10px 13px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+  th{font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700;background:var(--panel-2);position:sticky;top:0}
+  tbody tr:last-child td{border-bottom:0}
+  tbody tr:hover{background:var(--panel-2)}
+  td.amt{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+  .pill{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px}
+  .pill.in{background:var(--in-soft);color:var(--in)}
+  .pill.out{background:var(--out-soft);color:var(--out)}
+  .pill.cat{background:var(--panel-2);color:var(--muted);border:1px solid var(--line)}
+  .del{border:0;background:transparent;color:var(--faint);cursor:pointer;font-size:16px;padding:2px 6px;border-radius:7px}
+  .del:hover{background:var(--out-soft);color:var(--out)}
+
+  .empty{text-align:center;color:var(--muted);padding:34px 16px}
+  .empty .big{font-size:30px;margin-bottom:8px}
+
+  .charts{display:grid;gap:18px}
+  @media(min-width:820px){.charts{grid-template-columns:1fr 1fr}}
+  .chart-box{position:relative;height:280px}
+
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+  .row > *{flex:1;min-width:120px}
+  .inline-note{font-size:12.5px;color:var(--muted)}
+  .divider{height:1px;background:var(--line);margin:18px 0}
+  footer{max-width:1120px;margin:0 auto;padding:10px 20px 40px;color:var(--faint);font-size:12px;text-align:center}
+  .toast{
+    position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);
+    background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:11px;font-weight:600;font-size:13.5px;
+    opacity:0;pointer-events:none;transition:opacity .2s, transform .2s;z-index:80;box-shadow:var(--shadow)
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .hint{font-size:12.5px;color:var(--muted);margin-top:10px}
+  .warn{background:var(--out-soft);border:1px solid var(--out);color:var(--out);padding:12px 14px;border-radius:12px;font-size:13.5px;font-weight:600;margin-top:14px}
+  .sectionlabel{font-family:"Space Grotesk";font-weight:600;font-size:13px;color:var(--muted);margin:22px 0 10px}
+</style>
+</head>
+<body>
+
+<header class="app">
+  <div class="bar">
+    <div class="brand">
+      <div class="logo">$</div>
+      <div style="min-width:0">
+        <div class="name">Caja MXN</div>
+        <div class="sub">Efectivo, arqueo y flujo en pesos</div>
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <button class="theme-btn" id="themeBtn" title="Cambiar tema" aria-label="Cambiar tema">🌙</button>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-tab="desglose"><span class="ic">💵</span> Desglose</button>
+    <button class="tab" data-tab="arqueo"><span class="ic">🧮</span> Arqueo</button>
+    <button class="tab" data-tab="movimientos"><span class="ic">📒</span> Movimientos</button>
+    <button class="tab" data-tab="reportes"><span class="ic">📊</span> Reportes</button>
+  </nav>
+</header>
+
+<main>
+  <!-- ============ DESGLOSE ============ -->
+  <section class="panel active" id="desglose">
+    <div class="grid cols2">
+      <div class="card pad">
+        <h2 class="card-title">¿Cómo cubrir una cantidad?</h2>
+        <p class="card-note">Escribe un monto y obtén el desglose en billetes y monedas, con combinaciones alternativas.</p>
+
+        <label class="fld" for="amt">Cantidad a cubrir</label>
+        <div class="money-input">
+          <span class="peso">$</span>
+          <input id="amt" class="money" inputmode="decimal" placeholder="0.00" autocomplete="off" />
+        </div>
+
+        <div class="sectionlabel">Usar</div>
+        <div class="seg" id="tipoSeg" role="group" aria-label="Tipo de efectivo">
+          <button data-tipo="ambos" class="on">Billetes y monedas</button>
+          <button data-tipo="billetes">Solo billetes</button>
+          <button data-tipo="monedas">Solo monedas</button>
+        </div>
+
+        <div class="sectionlabel">Denominaciones disponibles <span class="inline-note">(toca para activar/desactivar)</span></div>
+        <div class="chips" id="denChips"></div>
+
+        <div class="row" style="margin-top:18px">
+          <button class="btn ghost sm" id="denAll" style="flex:0">Todas</button>
+          <button class="btn ghost sm" id="denNone" style="flex:0">Ninguna</button>
+          <div style="flex:1"></div>
+        </div>
+
+        <div class="hint">💡 Tip: trabajo internamente en centavos, así que no hay errores de redondeo. La denominación más pequeña activa define qué cantidades son exactas.</div>
+      </div>
+
+      <div class="card pad">
+        <div class="result-head">
+          <div>
+            <div class="card-title" style="margin:0">Desglose</div>
+            <p class="card-note" id="resultNote" style="margin:3px 0 0">Esperando una cantidad…</p>
+          </div>
+          <div class="result-total money" id="resultTotal">$0.00</div>
+        </div>
+        <div id="combosOut"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ARQUEO ============ -->
+  <section class="panel" id="arqueo">
+    <div class="grid cols2">
+      <div class="card pad">
+        <h2 class="card-title">Arqueo de caja</h2>
+        <p class="card-note">Captura cuántas piezas tienes de cada denominación y obtén el total contado.</p>
+        <div class="count-grid" id="countGrid"></div>
+        <div class="row" style="margin-top:16px">
+          <button class="btn ghost sm" id="countReset" style="flex:0">Limpiar</button>
+        </div>
+      </div>
+      <div class="card pad" style="align-self:start">
+        <div class="result-head">
+          <div><div class="card-title" style="margin:0">Total contado</div>
+          <p class="card-note" id="countPieces" style="margin:3px 0 0">0 piezas</p></div>
+          <div class="result-total money" id="countTotal" style="color:var(--brand)">$0.00</div>
+        </div>
+        <div class="divider"></div>
+        <div id="countBreak" class="inline-note">Captura piezas para ver el detalle por denominación.</div>
+        <div class="divider"></div>
+        <p class="card-note">¿Este conteo es una entrada de dinero? Regístralo en tus movimientos.</p>
+        <div class="row">
+          <input class="input" id="countDesc" placeholder="Descripción (ej. Corte del día)" />
+        </div>
+        <div class="row" style="margin-top:10px">
+          <div class="seg" id="countTipoSeg" style="flex:0">
+            <button data-t="ingreso" class="on">Ingreso</button>
+            <button data-t="egreso">Egreso</button>
+          </div>
+          <button class="btn primary" id="countToMov" style="flex:1">Registrar en movimientos →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MOVIMIENTOS ============ -->
+  <section class="panel" id="movimientos">
+    <div class="kpis" style="margin-bottom:18px">
+      <div class="kpi in"><div class="k">Ingresos</div><div class="v money" id="kIn">$0.00</div></div>
+      <div class="kpi out"><div class="k">Egresos</div><div class="v money" id="kOut">$0.00</div></div>
+      <div class="kpi"><div class="k">Balance</div><div class="v money" id="kBal">$0.00</div></div>
+    </div>
+
+    <div class="card pad" style="margin-bottom:18px">
+      <h2 class="card-title">Registrar movimiento</h2>
+      <p class="card-note">Entradas y salidas de dinero con su categoría.</p>
+      <div class="row">
+        <div style="flex:0;min-width:0">
+          <label class="fld">Tipo</label>
+          <div class="seg" id="movTipoSeg">
+            <button data-t="ingreso" class="on">Ingreso</button>
+            <button data-t="egreso">Egreso</button>
+          </div>
+        </div>
+        <div>
+          <label class="fld" for="movMonto">Monto</label>
+          <div class="money-input" style="min-width:140px">
+            <span class="peso" style="font-size:15px">$</span>
+            <input id="movMonto" class="money" inputmode="decimal" placeholder="0.00" style="font-size:18px;padding:11px 12px 11px 26px" autocomplete="off"/>
+          </div>
+        </div>
+        <div>
+          <label class="fld" for="movCat">Categoría</label>
+          <select id="movCat" class="input"></select>
+        </div>
+        <div style="flex:0;min-width:150px">
+          <label class="fld" for="movFecha">Fecha</label>
+          <input id="movFecha" type="date" class="input"/>
+        </div>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <div style="flex:3">
+          <label class="fld" for="movDesc">Descripción (opcional)</label>
+          <input id="movDesc" class="input" placeholder="Ej. Venta mostrador, pago de renta…" autocomplete="off"/>
+        </div>
+        <div style="flex:1;display:flex;align-items:flex-end">
+          <button class="btn primary block" id="movAdd">＋ Agregar</button>
+        </div>
+      </div>
+      <div class="hint">¿Falta una categoría? Elige <strong>“＋ Nueva categoría…”</strong> en la lista para crearla.</div>
+    </div>
+
+    <div class="card pad">
+      <div class="result-head" style="margin-bottom:14px">
+        <h2 class="card-title" style="margin:0">Historial</h2>
+        <div class="row" style="flex:0">
+          <select id="movFilter" class="input" style="min-width:170px"></select>
+        </div>
+      </div>
+      <div id="movTable"></div>
+    </div>
+  </section>
+
+  <!-- ============ REPORTES ============ -->
+  <section class="panel" id="reportes">
+    <div class="card pad" style="margin-bottom:18px">
+      <div class="result-head" style="margin-bottom:4px">
+        <div>
+          <h2 class="card-title" style="margin:0">Reportes y gráficos</h2>
+          <p class="card-note" style="margin:3px 0 0">Visualiza tu flujo de efectivo y exporta el mes en PDF.</p>
+        </div>
+        <div class="row" style="flex:0;align-items:center">
+          <select id="repMonth" class="input" style="min-width:170px"></select>
+          <button class="btn primary" id="exportPdf">⬇ Exportar PDF</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="kpis" style="margin-bottom:18px">
+      <div class="kpi in"><div class="k">Ingresos del mes</div><div class="v money" id="rIn">$0.00</div></div>
+      <div class="kpi out"><div class="k">Egresos del mes</div><div class="v money" id="rOut">$0.00</div></div>
+      <div class="kpi"><div class="k">Balance del mes</div><div class="v money" id="rBal">$0.00</div></div>
+    </div>
+
+    <div class="charts">
+      <div class="card pad">
+        <h3 class="card-title">Ingresos vs egresos por mes</h3>
+        <p class="card-note">Comparativo histórico.</p>
+        <div class="chart-box"><canvas id="chartBars"></canvas></div>
+      </div>
+      <div class="card pad">
+        <h3 class="card-title">Egresos del mes por categoría</h3>
+        <p class="card-note" id="donutNote">Distribución del mes seleccionado.</p>
+        <div class="row" style="flex:0;margin-bottom:10px">
+          <div class="seg" id="donutTipoSeg" style="flex:0">
+            <button data-t="egreso" class="on">Egresos</button>
+            <button data-t="ingreso">Ingresos</button>
+          </div>
+        </div>
+        <div class="chart-box"><canvas id="chartDonut"></canvas></div>
+      </div>
+      <div class="card pad" style="grid-column:1/-1">
+        <h3 class="card-title">Balance acumulado</h3>
+        <p class="card-note">Cómo evoluciona tu saldo con cada movimiento.</p>
+        <div class="chart-box"><canvas id="chartLine"></canvas></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  Caja MXN · Hecho para operar efectivo en pesos mexicanos · Tus datos se guardan solo en este navegador (localStorage).
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================================
+   CAJA MXN — lógica
+   Todo en centavos (enteros) para evitar errores de punto flotante.
+   ========================================================================= */
+
+/* ---------- Denominaciones (valor en centavos) ---------- */
+const DENOMS = [
+  {v:100000, label:'$1,000', tipo:'billete', color:'#8e4a9e'},
+  {v:50000,  label:'$500',   tipo:'billete', color:'#2b6cb0'},
+  {v:20000,  label:'$200',   tipo:'billete', color:'#2f855a'},
+  {v:10000,  label:'$100',   tipo:'billete', color:'#c05621'},
+  {v:5000,   label:'$50',    tipo:'billete', color:'#d53f8c'},
+  {v:2000,   label:'$20',    tipo:'both',    color:'#319795'},
+  {v:1000,   label:'$10',    tipo:'moneda',  color:'#b7791f'},
+  {v:500,    label:'$5',     tipo:'moneda',  color:'#a0aec0'},
+  {v:200,    label:'$2',     tipo:'moneda',  color:'#cbae82'},
+  {v:100,    label:'$1',     tipo:'moneda',  color:'#e0a938'},
+  {v:50,     label:'$0.50',  tipo:'moneda',  color:'#9c8459'},
+  {v:20,     label:'$0.20',  tipo:'moneda',  color:'#b0b7bd'},
+  {v:10,     label:'$0.10',  tipo:'moneda',  color:'#c9a96a'},
+];
+const DEN_BY_V = Object.fromEntries(DENOMS.map(d=>[d.v,d]));
+
+/* ---------- Helpers de dinero ---------- */
+const mxn = new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'});
+const fmt = c => mxn.format((c||0)/100);
+function parseCentavos(str){
+  if(str==null) return 0;
+  const clean = String(str).replace(/[^0-9.]/g,'');
+  if(clean==='' || clean==='.') return 0;
+  const val = parseFloat(clean);
+  if(isNaN(val)) return 0;
+  return Math.round(val*100);
+}
+const tipoLabel = t => t==='billete' ? 'Billete' : 'Moneda';
+function pieceTypeFor(v, modo){
+  const d = DEN_BY_V[v];
+  if(d.tipo==='both') return modo==='monedas' ? 'moneda' : 'billete';
+  return d.tipo;
+}
+
+/* ---------- Motor de desglose ---------- */
+function gcd(a,b){ while(b){ const t=a%b; a=b; b=t; } return a; }
+function countPieces(combo){ return Object.values(combo).reduce((a,b)=>a+b,0); }
+function sig(combo, values){ return values.map(v=>combo[v]||0).join('-'); }
+
+// Greedy simple: se usa para montos enormes y para estimar la cantidad más cercana.
+function greedy(target, values){
+  let rem = target; const res = {};
+  for(const v of values){ const c = Math.floor(rem/v); if(c>0){ res[v]=c; rem -= c*v; } }
+  return rem===0 ? res : null;
+}
+
+// Programación dinámica: mínimo de piezas EXACTO + detección de representabilidad.
+// A diferencia del greedy, funciona con cualquier selección de denominaciones,
+// incluso cuando el sistema no es "canónico" (p. ej. solo billetes, donde $780 = $500+$200+$20×4).
+const DP_CAP = 2000000; // tope de unidades reducidas para la DP exacta
+function minPiecesDP(target, values){
+  if(target===0) return {combo:{}, pieces:0};
+  if(!values.length) return null;
+  const g = values.reduce((a,b)=>gcd(a,b));
+  if(target % g !== 0) return null;              // imposible: el residuo no es cubrible
+  const T = target/g;
+  const dv = values.map(v=>v/g);                 // denominaciones reducidas por el gcd
+  if(T > DP_CAP){                                 // monto enorme → greedy (fiable cuando dominan los grandes)
+    const gr = greedy(target, values);
+    return gr ? {combo:gr, pieces:countPieces(gr), approx:true} : null;
+  }
+  const INF = 0x7fffffff;
+  const cnt = new Int32Array(T+1).fill(INF);
+  const pick = new Int8Array(T+1).fill(-1);
+  cnt[0] = 0;
+  for(let a=1; a<=T; a++){
+    let best=INF, bj=-1;
+    for(let j=0; j<dv.length; j++){
+      const d=dv[j];
+      if(d<=a){ const c=cnt[a-d]+1; if(c<best){ best=c; bj=j; } }
+    }
+    cnt[a]=best; pick[a]=bj;
+  }
+  if(cnt[T]===INF) return null;                   // no representable con esta selección
+  const combo={}; let a=T;
+  while(a>0){ const j=pick[a]; const v=values[j]; combo[v]=(combo[v]||0)+1; a-=dv[j]; }
+  return {combo, pieces:cnt[T]};
+}
+
+function generateCombos(target, values, maxAlts){
+  // 1) Mínimo de piezas (DP exacta) y 2) alternativas válidas y distintas,
+  //    variando cuántas piezas de las denominaciones grandes se usan y
+  //    completando el resto, también con el mínimo de piezas.
+  maxAlts = maxAlts || 10;
+  const out = []; const seen = new Set();
+  const add = (combo)=>{
+    if(!combo) return;
+    const s = sig(combo, values);
+    if(seen.has(s)) return;
+    seen.add(s); out.push(combo);
+  };
+  const base = minPiecesDP(target, values);
+  if(!base) return [];
+  add(base.combo); // principal = mínimo de piezas
+
+  for(let i=0; i<values.length && out.length<maxAlts; i++){
+    const v = values[i];
+    const rest = values.filter(x=>x!==v);
+    if(!rest.length) continue;
+    const maxC = Math.floor(target/v);
+    for(let k=maxC; k>=0 && out.length<maxAlts; k--){
+      const rem = target - k*v;
+      if(rem<0) continue;
+      let sub;
+      if(rem===0) sub={};
+      else { const r=minPiecesDP(rem, rest); sub = r?r.combo:null; }
+      if(sub){
+        const combo = {...sub};
+        if(k>0) combo[v] = (combo[v]||0) + k;
+        add(combo);
+      }
+    }
+  }
+  return out;
+}
+
+// Cantidad representable más alta que NO rebasa el objetivo (sugerencia cuando no hay exacto).
+function closestBelow(target, values){
+  if(!values.length) return 0;
+  const g = values.reduce((a,b)=>gcd(a,b));
+  let t = Math.floor(target/g)*g;                 // múltiplo del gcd (candidato inmediato)
+  for(let i=0; i<5000 && t>=0; i++, t-=g){
+    if(minPiecesDP(t, values)) return t;
+  }
+  // respaldo aproximado si el barrido no encontró nada
+  let rem=target; for(const v of values){ rem -= Math.floor(rem/v)*v; }
+  return target-rem;
+}
+
+/* =========================================================================
+   ESTADO + PERSISTENCIA
+   ========================================================================= */
+const LS = {
+  mov:'cajaMXN_mov_v1',
+  cats:'cajaMXN_cats_v1',
+  den:'cajaMXN_den_v1',
+  theme:'cajaMXN_theme_v1'
+};
+function load(key, fallback){ try{ const v=localStorage.getItem(key); return v?JSON.parse(v):fallback; }catch(e){ return fallback; } }
+function save(key, val){ try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){} }
+
+const DEFAULT_CATS = {
+  ingreso:['Ventas','Servicios','Cobranza','Anticipos','Intereses','Otros ingresos'],
+  egreso:['Renta','Nómina / Sueldos','Insumos / Mercancía','Servicios (luz, agua, internet)','Transporte / Combustible','Impuestos','Mantenimiento','Publicidad','Otros egresos']
+};
+
+let state = {
+  mov: load(LS.mov, []),                 // {id, tipo, cents, cat, fecha(YYYY-MM-DD), desc}
+  cats: load(LS.cats, structuredClone(DEFAULT_CATS)),
+  den: load(LS.den, DENOMS.map(d=>d.v)), // denominaciones activas en desglose
+  tipoModo: 'ambos'
+};
+let movTipo = 'ingreso';
+let countTipo = 'ingreso';
+let donutTipo = 'egreso';
+
+/* =========================================================================
+   UTILIDADES UI
+   ========================================================================= */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+let toastT;
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+const MONTHS = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+function monthKey(fecha){ return fecha.slice(0,7); } // YYYY-MM
+function monthLabel(key){ const [y,m]=key.split('-'); return `${MONTHS[+m-1][0].toUpperCase()+MONTHS[+m-1].slice(1)} ${y}`; }
+function todayStr(){ const d=new Date(); const off=d.getTimezoneOffset(); const l=new Date(d-off*60000); return l.toISOString().slice(0,10); }
+
+/* =========================================================================
+   TEMA
+   ========================================================================= */
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  $('#themeBtn').textContent = t==='dark' ? '☀️' : '🌙';
+  save(LS.theme, t);
+}
+applyTheme(load(LS.theme, (window.matchMedia && matchMedia('(prefers-color-scheme:dark)').matches)?'dark':'light'));
+$('#themeBtn').addEventListener('click', ()=>{
+  const cur = document.documentElement.getAttribute('data-theme');
+  applyTheme(cur==='dark'?'light':'dark');
+  if(window._charts) renderReportes(); // recolorear gráficos
+});
+
+/* =========================================================================
+   TABS
+   ========================================================================= */
+$('#tabs').addEventListener('click', e=>{
+  const b = e.target.closest('.tab'); if(!b) return;
+  $$('.tab').forEach(t=>t.classList.toggle('active', t===b));
+  const id = b.dataset.tab;
+  $$('.panel').forEach(p=>p.classList.toggle('active', p.id===id));
+  if(id==='reportes') renderReportes();
+  if(id==='movimientos') renderMov();
+});
+
+/* =========================================================================
+   MÓDULO 1 — DESGLOSE
+   ========================================================================= */
+function activeValuesForMode(){
+  return DENOMS.filter(d=>{
+    if(!state.den.includes(d.v)) return false;
+    if(state.tipoModo==='billetes') return d.tipo==='billete' || d.tipo==='both';
+    if(state.tipoModo==='monedas')  return d.tipo==='moneda'  || d.tipo==='both';
+    return true;
+  }).map(d=>d.v);
+}
+function renderDenChips(){
+  const wrap = $('#denChips'); wrap.innerHTML='';
+  DENOMS.forEach(d=>{
+    const inModo = (state.tipoModo==='ambos') ||
+                   (state.tipoModo==='billetes' && (d.tipo==='billete'||d.tipo==='both')) ||
+                   (state.tipoModo==='monedas'  && (d.tipo==='moneda' ||d.tipo==='both'));
+    if(!inModo) return;
+    const on = state.den.includes(d.v);
+    const chip = document.createElement('button');
+    chip.className = 'denchip'+(on?'':' off');
+    chip.innerHTML = `<span class="dot" style="background:${d.color}"></span>${d.label}<span class="t">${d.tipo==='both'?'b/m':(d.tipo==='billete'?'bill':'mon')}</span>`;
+    chip.addEventListener('click', ()=>{
+      if(on){ state.den = state.den.filter(v=>v!==d.v); }
+      else { state.den = [...state.den, d.v]; }
+      save(LS.den, state.den); renderDenChips(); computeDesglose();
+    });
+    wrap.appendChild(chip);
+  });
+}
+$('#tipoSeg').addEventListener('click', e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  state.tipoModo = b.dataset.tipo;
+  $$('#tipoSeg button').forEach(x=>x.classList.toggle('on', x===b));
+  renderDenChips(); computeDesglose();
+});
+$('#denAll').addEventListener('click', ()=>{ state.den = DENOMS.map(d=>d.v); save(LS.den,state.den); renderDenChips(); computeDesglose(); });
+$('#denNone').addEventListener('click', ()=>{ state.den = []; save(LS.den,state.den); renderDenChips(); computeDesglose(); });
+
+$('#amt').addEventListener('input', computeDesglose);
+
+function comboCard(combo, values, isBest, idx){
+  const pcs = countPieces(combo);
+  const rows = values.filter(v=>combo[v]).map(v=>{
+    const d = DEN_BY_V[v];
+    return `<div class="piece-row">
+      <span class="dot" style="background:${d.color}"></span>
+      <span class="pden money">${d.label}</span>
+      <span class="pcnt">× ${combo[v]}</span>
+      <span class="ptype">${tipoLabel(pieceTypeFor(v, state.tipoModo))}</span>
+      <span class="psub money">${fmt(v*combo[v])}</span>
+    </div>`;
+  }).join('');
+  return `<div class="combo${isBest?' best':''}">
+    <div class="chead">
+      <span class="lbl">${isBest?'<span class="badge">Mínimo de piezas</span>':'<span class="badge soft">Opción '+(idx)+'</span>'}</span>
+      <span class="pieces">${pcs} pieza${pcs!==1?'s':''}</span>
+    </div>
+    ${rows}
+  </div>`;
+}
+
+function computeDesglose(){
+  const cents = parseCentavos($('#amt').value);
+  $('#resultTotal').textContent = fmt(cents);
+  const out = $('#combosOut'); const note = $('#resultNote');
+  const values = activeValuesForMode();
+
+  if(cents<=0){ note.textContent='Esperando una cantidad…'; out.innerHTML=''; return; }
+  if(values.length===0){ note.textContent='Selecciona al menos una denominación.'; out.innerHTML=''; return; }
+
+  const combos = generateCombos(cents, values, 10);
+  if(combos.length===0){
+    const near = closestBelow(cents, values);
+    out.innerHTML = `<div class="warn">No es posible formar <strong>${fmt(cents)}</strong> exacto con las denominaciones elegidas.
+      Lo más cercano por debajo es <strong>${fmt(near)}</strong> (faltarían ${fmt(cents-near)}).
+      Activa denominaciones más pequeñas para cubrir el resto.</div>`;
+    note.textContent = 'Sin combinación exacta';
+    return;
+  }
+  note.textContent = `${combos.length} ${combos.length===1?'forma':'formas'} de reunir esta cantidad`;
+  out.innerHTML = combos.map((c,i)=> comboCard(c, values, i===0, i)).join('');
+}
+
+/* =========================================================================
+   MÓDULO 2 — ARQUEO
+   ========================================================================= */
+let counts = {}; // v -> cantidad
+function renderCountGrid(){
+  const grid = $('#countGrid'); grid.innerHTML='';
+  DENOMS.forEach(d=>{
+    const q = counts[d.v]||0;
+    const row = document.createElement('div');
+    row.className='count-row';
+    row.innerHTML = `
+      <span class="dot" style="background:${d.color}"></span>
+      <span class="den money">${d.label}</span>
+      <div class="stepper">
+        <button data-act="dec" aria-label="menos">−</button>
+        <input type="number" min="0" value="${q}" inputmode="numeric"/>
+        <button data-act="inc" aria-label="más">＋</button>
+      </div>
+      <span class="rsub money">${fmt(d.v*q)}</span>`;
+    const input = row.querySelector('input');
+    row.querySelector('[data-act=dec]').onclick = ()=>{ counts[d.v]=Math.max(0,(counts[d.v]||0)-1); renderCountGrid(); };
+    row.querySelector('[data-act=inc]').onclick = ()=>{ counts[d.v]=(counts[d.v]||0)+1; renderCountGrid(); };
+    input.onchange = ()=>{ counts[d.v]=Math.max(0, parseInt(input.value)||0); renderCountGrid(); };
+    grid.appendChild(row);
+  });
+  // totales
+  let total=0, pcs=0;
+  DENOMS.forEach(d=>{ const q=counts[d.v]||0; total+=d.v*q; pcs+=q; });
+  $('#countTotal').textContent = fmt(total);
+  $('#countPieces').textContent = `${pcs} pieza${pcs!==1?'s':''}`;
+  const detail = DENOMS.filter(d=>counts[d.v]).map(d=>{
+    return `<div class="piece-row"><span class="dot" style="background:${d.color}"></span>
+      <span class="pden money">${d.label}</span><span class="pcnt">× ${counts[d.v]}</span>
+      <span class="psub money">${fmt(d.v*counts[d.v])}</span></div>`;
+  }).join('');
+  $('#countBreak').innerHTML = detail || '<span class="inline-note">Captura piezas para ver el detalle por denominación.</span>';
+}
+$('#countReset').addEventListener('click', ()=>{ counts={}; renderCountGrid(); });
+$('#countTipoSeg').addEventListener('click', e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  countTipo=b.dataset.t;
+  $$('#countTipoSeg button').forEach(x=>x.classList.toggle('on',x===b));
+});
+$('#countToMov').addEventListener('click', ()=>{
+  let total=0; DENOMS.forEach(d=>total+=d.v*(counts[d.v]||0));
+  if(total<=0){ toast('El conteo está en cero'); return; }
+  const desc = $('#countDesc').value.trim() || 'Arqueo de caja';
+  addMov(countTipo, total, countTipo==='ingreso'?'Ventas':'Otros egresos', todayStr(), desc);
+  counts={}; renderCountGrid(); $('#countDesc').value='';
+  toast(`Registrado: ${fmt(total)} como ${countTipo}`);
+});
+
+/* =========================================================================
+   MÓDULO 3 — MOVIMIENTOS
+   ========================================================================= */
+function refreshCatSelect(){
+  const sel = $('#movCat'); const cats = state.cats[movTipo]||[];
+  sel.innerHTML = cats.map(c=>`<option>${c}</option>`).join('') + `<option value="__new__">＋ Nueva categoría…</option>`;
+}
+$('#movTipoSeg').addEventListener('click', e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  movTipo=b.dataset.t;
+  $$('#movTipoSeg button').forEach(x=>x.classList.toggle('on',x===b));
+  refreshCatSelect();
+});
+$('#movCat').addEventListener('change', e=>{
+  if(e.target.value==='__new__'){
+    const name = prompt('Nombre de la nueva categoría:');
+    if(name && name.trim()){
+      const n=name.trim(); state.cats[movTipo].push(n); save(LS.cats, state.cats); refreshCatSelect(); e.target.value=n;
+    } else { refreshCatSelect(); }
+  }
+});
+function addMov(tipo, cents, cat, fecha, desc){
+  state.mov.push({id:uid(), tipo, cents, cat, fecha, desc:desc||''});
+  state.mov.sort((a,b)=> a.fecha<b.fecha?1:a.fecha>b.fecha?-1:0);
+  save(LS.mov, state.mov);
+  renderMov(); refreshFilters();
+}
+$('#movAdd').addEventListener('click', ()=>{
+  const cents = parseCentavos($('#movMonto').value);
+  if(cents<=0){ toast('Escribe un monto válido'); return; }
+  let cat = $('#movCat').value; if(cat==='__new__') cat=(state.cats[movTipo][0]||'Otros');
+  const fecha = $('#movFecha').value || todayStr();
+  addMov(movTipo, cents, cat, fecha, $('#movDesc').value.trim());
+  $('#movMonto').value=''; $('#movDesc').value='';
+  toast('Movimiento agregado');
+});
+function delMov(id){
+  state.mov = state.mov.filter(m=>m.id!==id); save(LS.mov,state.mov);
+  renderMov(); refreshFilters();
+}
+let movFilterKey='all';
+function refreshFilters(){
+  const keys = [...new Set(state.mov.map(m=>monthKey(m.fecha)))].sort().reverse();
+  const opts = `<option value="all">Todos los meses</option>` + keys.map(k=>`<option value="${k}">${monthLabel(k)}</option>`).join('');
+  const f=$('#movFilter'); const cur=f.value||'all'; f.innerHTML=opts; f.value = keys.includes(cur)||cur==='all'?cur:'all';
+  // selector de reportes
+  const r=$('#repMonth'); const rcur=r.value;
+  const rkeys = keys.length?keys:[monthKey(todayStr())];
+  r.innerHTML = rkeys.map(k=>`<option value="${k}">${monthLabel(k)}</option>`).join('');
+  if(rkeys.includes(rcur)) r.value=rcur;
+}
+$('#movFilter').addEventListener('change', e=>{ movFilterKey=e.target.value; renderMovTable(); });
+
+function renderMov(){
+  let inSum=0,outSum=0;
+  state.mov.forEach(m=>{ if(m.tipo==='ingreso') inSum+=m.cents; else outSum+=m.cents; });
+  $('#kIn').textContent=fmt(inSum); $('#kOut').textContent=fmt(outSum);
+  const bal=inSum-outSum; const kb=$('#kBal'); kb.textContent=fmt(bal);
+  kb.style.color = bal>0?'var(--in)':bal<0?'var(--out)':'var(--ink)';
+  renderMovTable();
+}
+function renderMovTable(){
+  const rows = state.mov.filter(m=> movFilterKey==='all' || monthKey(m.fecha)===movFilterKey);
+  const cont = $('#movTable');
+  if(rows.length===0){
+    cont.innerHTML = `<div class="empty"><div class="big">📭</div>Aún no hay movimientos${movFilterKey!=='all'?' en este mes':''}.<br/>Registra una entrada o salida arriba.</div>`;
+    return;
+  }
+  const body = rows.map(m=>{
+    const d = new Date(m.fecha+'T00:00:00');
+    const fecha = `${String(d.getDate()).padStart(2,'0')} ${MONTHS[d.getMonth()].slice(0,3)} ${d.getFullYear()}`;
+    const sign = m.tipo==='ingreso'?'+':'−';
+    return `<tr>
+      <td>${fecha}</td>
+      <td><span class="pill ${m.tipo==='ingreso'?'in':'out'}">${m.tipo==='ingreso'?'Ingreso':'Egreso'}</span></td>
+      <td><span class="pill cat">${m.cat}</span></td>
+      <td style="white-space:normal;max-width:280px;color:var(--muted)">${m.desc||'—'}</td>
+      <td class="amt" style="color:${m.tipo==='ingreso'?'var(--in)':'var(--out)'}">${sign} ${fmt(m.cents)}</td>
+      <td style="width:40px"><button class="del" title="Eliminar" data-id="${m.id}">🗑</button></td>
+    </tr>`;
+  }).join('');
+  cont.innerHTML = `<div class="table-wrap"><table>
+    <thead><tr><th>Fecha</th><th>Tipo</th><th>Categoría</th><th>Descripción</th><th style="text-align:right">Monto</th><th></th></tr></thead>
+    <tbody>${body}</tbody></table></div>`;
+  cont.querySelectorAll('.del').forEach(b=> b.onclick=()=>delMov(b.dataset.id));
+}
+
+/* =========================================================================
+   MÓDULO 4 — REPORTES + GRÁFICOS
+   ========================================================================= */
+window._charts = {};
+function themeColors(){
+  const cs = getComputedStyle(document.documentElement);
+  return {
+    ink: cs.getPropertyValue('--ink').trim(),
+    muted: cs.getPropertyValue('--muted').trim(),
+    line: cs.getPropertyValue('--line').trim(),
+    in: cs.getPropertyValue('--in').trim(),
+    out: cs.getPropertyValue('--out').trim(),
+    brand: cs.getPropertyValue('--brand').trim(),
+  };
+}
+const CAT_PALETTE = ['#0f6d63','#e0a938','#2b6cb0','#d53f8c','#2f855a','#c05621','#8e4a9e','#319795','#b7791f','#718096','#dd6b20','#38a169'];
+
+$('#donutTipoSeg').addEventListener('click', e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  donutTipo=b.dataset.t;
+  $$('#donutTipoSeg button').forEach(x=>x.classList.toggle('on',x===b));
+  renderReportes();
+});
+$('#repMonth').addEventListener('change', renderReportes);
+
+function monthData(key){
+  const rows = state.mov.filter(m=>monthKey(m.fecha)===key);
+  let inSum=0,outSum=0; const byCat={ingreso:{},egreso:{}};
+  rows.forEach(m=>{
+    if(m.tipo==='ingreso') inSum+=m.cents; else outSum+=m.cents;
+    byCat[m.tipo][m.cat]=(byCat[m.tipo][m.cat]||0)+m.cents;
+  });
+  return {rows,inSum,outSum,byCat};
+}
+
+function renderReportes(){
+  if(typeof Chart==='undefined'){ setTimeout(renderReportes,120); return; }
+  refreshFilters();
+  const key = $('#repMonth').value || monthKey(todayStr());
+  const md = monthData(key);
+  $('#rIn').textContent=fmt(md.inSum); $('#rOut').textContent=fmt(md.outSum);
+  const bal=md.inSum-md.outSum; const rb=$('#rBal'); rb.textContent=fmt(bal);
+  rb.style.color = bal>0?'var(--in)':bal<0?'var(--out)':'var(--ink)';
+
+  const tc = themeColors();
+  Chart.defaults.color = tc.muted;
+  Chart.defaults.font.family = "'Inter',sans-serif";
+  Object.values(window._charts).forEach(c=>{ try{c.destroy();}catch(e){} });
+
+  /* Barras: ingresos vs egresos por mes */
+  const keys = [...new Set(state.mov.map(m=>monthKey(m.fecha)))].sort();
+  const insByM = keys.map(k=> state.mov.filter(m=>monthKey(m.fecha)===k&&m.tipo==='ingreso').reduce((a,m)=>a+m.cents,0)/100);
+  const outByM= keys.map(k=> state.mov.filter(m=>monthKey(m.fecha)===k&&m.tipo==='egreso').reduce((a,m)=>a+m.cents,0)/100);
+  window._charts.bars = new Chart($('#chartBars'),{
+    type:'bar',
+    data:{labels:keys.map(monthLabel),datasets:[
+      {label:'Ingresos',data:insByM,backgroundColor:tc.in,borderRadius:6},
+      {label:'Egresos',data:outByM,backgroundColor:tc.out,borderRadius:6},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:c=>c.dataset.label+': '+mxn.format(c.parsed.y)}}},
+      scales:{x:{grid:{display:false}},y:{grid:{color:tc.line},ticks:{callback:v=>'$'+v.toLocaleString('es-MX')}}}}
+  });
+
+  /* Dona por categoría */
+  const cat = md.byCat[donutTipo]||{};
+  const catKeys=Object.keys(cat); const catVals=catKeys.map(k=>cat[k]/100);
+  $('#donutNote').textContent = catKeys.length? `${donutTipo==='egreso'?'Egresos':'Ingresos'} de ${monthLabel(key)}` : 'Sin datos en el mes seleccionado.';
+  window._charts.donut = new Chart($('#chartDonut'),{
+    type:'doughnut',
+    data:{labels:catKeys.length?catKeys:['Sin datos'],datasets:[{data:catKeys.length?catVals:[1],
+      backgroundColor:catKeys.length?catKeys.map((_,i)=>CAT_PALETTE[i%CAT_PALETTE.length]):[tc.line],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
+      plugins:{legend:{position:'right'},tooltip:{enabled:catKeys.length>0,callbacks:{label:c=>c.label+': '+mxn.format(c.parsed)}}}}
+  });
+
+  /* Línea: balance acumulado */
+  const ordered=[...state.mov].sort((a,b)=> a.fecha<b.fecha?-1:a.fecha>b.fecha?1:0);
+  let run=0; const pts=ordered.map(m=>{ run += m.tipo==='ingreso'?m.cents:-m.cents; return {x:m.fecha, y:run/100}; });
+  window._charts.line = new Chart($('#chartLine'),{
+    type:'line',
+    data:{labels:pts.map(p=>p.x),datasets:[{label:'Balance',data:pts.map(p=>p.y),
+      borderColor:tc.brand,backgroundColor:'transparent',tension:.25,pointRadius:pts.length>40?0:3,borderWidth:2,fill:false}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>mxn.format(c.parsed.y)}}},
+      scales:{x:{grid:{display:false},ticks:{maxTicksLimit:8}},y:{grid:{color:tc.line},ticks:{callback:v=>'$'+v.toLocaleString('es-MX')}}}}
+  });
+}
+
+/* ---------- Exportar PDF mensual ---------- */
+$('#exportPdf').addEventListener('click', ()=>{
+  const key = $('#repMonth').value || monthKey(todayStr());
+  const md = monthData(key);
+  if(md.rows.length===0){ toast('No hay movimientos en ese mes'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({unit:'pt', format:'a4'});
+  const W = doc.internal.pageSize.getWidth();
+  const brand=[15,109,99];
+
+  // Encabezado
+  doc.setFillColor(...brand); doc.rect(0,0,W,70,'F');
+  doc.setTextColor(255); doc.setFont('helvetica','bold'); doc.setFontSize(20);
+  doc.text('Caja MXN — Reporte mensual', 40, 36);
+  doc.setFont('helvetica','normal'); doc.setFontSize(11);
+  doc.text(monthLabel(key), 40, 54);
+  const gen = new Date();
+  doc.text('Generado: '+gen.toLocaleDateString('es-MX')+' '+gen.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'}), W-40, 54, {align:'right'});
+
+  // Resumen
+  let y=100;
+  const bal=md.inSum-md.outSum;
+  const box=(x,label,val,color)=>{
+    doc.setDrawColor(226,232,230); doc.setFillColor(248,250,250); doc.roundedRect(x,y,(W-80-24)/3,58,8,8,'FD');
+    doc.setTextColor(120); doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.text(label.toUpperCase(), x+14, y+22);
+    doc.setTextColor(...color); doc.setFontSize(16); doc.text(mxn.format(val/100), x+14, y+44);
+  };
+  const bw=(W-80-24)/3;
+  box(40,'Ingresos',md.inSum,[15,157,110]);
+  box(40+bw+12,'Egresos',md.outSum,[229,72,77]);
+  box(40+2*(bw+12),'Balance',bal,bal>=0?[15,109,99]:[229,72,77]);
+  y+=86;
+
+  // Gráfica de dona como imagen (si existe)
+  try{
+    const canvas = $('#chartDonut');
+    if(canvas && md.byCat[donutTipo] && Object.keys(md.byCat[donutTipo]).length){
+      const img = canvas.toDataURL('image/png',1.0);
+      doc.setTextColor(40); doc.setFont('helvetica','bold'); doc.setFontSize(12);
+      doc.text(`${donutTipo==='egreso'?'Egresos':'Ingresos'} por categoría`, 40, y);
+      doc.addImage(img, 'PNG', 40, y+8, 220, 150);
+      // Lista de categorías al lado
+      const cat=md.byCat[donutTipo]; let cy=y+20;
+      Object.keys(cat).forEach((k,i)=>{
+        doc.setFillColor(...hexToRgb(CAT_PALETTE[i%CAT_PALETTE.length])); doc.rect(290,cy-8,10,10,'F');
+        doc.setTextColor(60); doc.setFont('helvetica','normal'); doc.setFontSize(10);
+        doc.text(`${k}`, 306, cy);
+        doc.setFont('helvetica','bold'); doc.text(mxn.format(cat[k]/100), W-40, cy, {align:'right'});
+        cy+=18;
+      });
+      y+=172;
+    }
+  }catch(e){ /* sin imagen */ }
+
+  // Tabla de movimientos
+  const bodyRows = [...md.rows].sort((a,b)=> a.fecha<b.fecha?-1:1).map(m=>[
+    m.fecha, m.tipo==='ingreso'?'Ingreso':'Egreso', m.cat, m.desc||'—',
+    (m.tipo==='ingreso'?'+ ':'- ')+mxn.format(m.cents/100)
+  ]);
+  doc.autoTable({
+    startY:y+6,
+    head:[['Fecha','Tipo','Categoría','Descripción','Monto']],
+    body:bodyRows,
+    styles:{fontSize:9,cellPadding:5},
+    headStyles:{fillColor:brand,textColor:255},
+    alternateRowStyles:{fillColor:[245,248,247]},
+    columnStyles:{4:{halign:'right',fontStyle:'bold'}},
+    margin:{left:40,right:40},
+    didParseCell:(d)=>{ if(d.section==='body'&&d.column.index===4){ d.cell.styles.textColor = d.row.raw[1]==='Ingreso'?[15,157,110]:[229,72,77]; } }
+  });
+
+  // Pie
+  const pages = doc.internal.getNumberOfPages();
+  for(let i=1;i<=pages;i++){ doc.setPage(i); doc.setTextColor(150); doc.setFontSize(8);
+    doc.text('Caja MXN · '+monthLabel(key), 40, doc.internal.pageSize.getHeight()-20);
+    doc.text(`Página ${i} de ${pages}`, W-40, doc.internal.pageSize.getHeight()-20, {align:'right'}); }
+
+  doc.save(`Caja-MXN_${key}.pdf`);
+  toast('PDF generado ✓');
+});
+function hexToRgb(h){ const n=parseInt(h.slice(1),16); return [(n>>16)&255,(n>>8)&255,n&255]; }
+
+/* =========================================================================
+   INIT
+   ========================================================================= */
+$('#movFecha').value = todayStr();
+renderDenChips();
+renderCountGrid();
+refreshCatSelect();
+refreshFilters();
+renderMov();
+computeDesglose();
+</script>
+</body>
+</html>
