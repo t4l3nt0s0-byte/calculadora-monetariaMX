@@ -219,6 +219,19 @@
 
   .contact{border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:var(--panel);display:flex;align-items:center;gap:14px}
   .contact.emg{border-color:var(--out);background:var(--out-soft)}
+  .contact.op{border-left:4px solid var(--brand)}
+  .contact.adm{border-left:4px solid var(--accent)}
+  .pill.prio-alta{background:var(--out-soft);color:var(--out)}
+  .pill.prio-media{background:var(--warn-soft);color:var(--warn)}
+  .pill.prio-baja{background:var(--in-soft);color:var(--in)}
+  .pill.ctT{color:#fff}
+  .catchip{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line-strong);background:var(--panel-2);padding:6px 8px 6px 11px;border-radius:999px;font-weight:600;font-size:12.5px}
+  .catchip .cdot{width:12px;height:12px;border-radius:50%;flex:none}
+  .catchip .cx{border:0;background:transparent;color:var(--faint);cursor:pointer;font-size:14px;padding:0 2px;border-radius:6px}
+  .catchip .cx:hover{color:var(--out)}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;font-size:12.5px;color:var(--muted)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
   .contact .ava{width:42px;height:42px;border-radius:12px;flex:none;display:grid;place-items:center;font-weight:700;color:#fff;font-family:"Space Grotesk";font-size:17px}
   .contact .cmain{flex:1;min-width:0}
   .contact .cname{font-weight:700}
@@ -597,42 +610,73 @@
 
   <!-- ===== COMPRAS ===== -->
   <section class="panel" id="compras">
-    <div class="kpis c3" style="margin-bottom:var(--sp)">
-      <div class="kpi"><div class="k">Pendientes</div><div class="v" id="cPend">0</div></div>
-      <div class="kpi brandv"><div class="k">Costo estimado pendiente</div><div class="v money" id="cCosto">$0.00</div></div>
-      <div class="kpi in"><div class="k">Comprados</div><div class="v" id="cHechos">0</div></div>
-    </div>
     <div class="card pad" style="margin-bottom:var(--sp)">
-      <h2 class="card-title">Agregar pendiente de compra</h2>
-      <p class="card-note">Lo que necesitas comprar, con costo estimado opcional.</p>
+      <h2 class="card-title">Historial de compras realizadas</h2>
+      <p class="card-note">Totales de lo ya comprado, según su fecha de compra.</p>
+      <div class="kpis c5">
+        <div class="kpi brandv"><div class="k">Hoy</div><div class="v money" id="cpDia">$0.00</div></div>
+        <div class="kpi brandv"><div class="k">Esta semana</div><div class="v money" id="cpSem">$0.00</div></div>
+        <div class="kpi brandv"><div class="k">Esta quincena</div><div class="v money" id="cpQui">$0.00</div></div>
+        <div class="kpi brandv"><div class="k">Este mes</div><div class="v money" id="cpMes">$0.00</div></div>
+        <div class="kpi brandv"><div class="k">Este año</div><div class="v money" id="cpAnu">$0.00</div></div>
+      </div>
+      <div class="kpis c3" style="margin-top:12px">
+        <div class="kpi"><div class="k">Pendientes</div><div class="v" id="cPend">0</div></div>
+        <div class="kpi brandv"><div class="k">Costo estimado pendiente</div><div class="v money" id="cCosto">$0.00</div></div>
+        <div class="kpi in"><div class="k">Comprados</div><div class="v" id="cHechos">0</div></div>
+      </div>
+    </div>
+
+    <div class="card pad" style="margin-bottom:var(--sp)">
+      <h2 class="card-title">Categorías</h2>
+      <p class="card-note">Preinstaladas; puedes agregar, renombrar o eliminar. El color identifica cada categoría.</p>
+      <div class="chips" id="compCatChips" style="margin-bottom:14px"></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><input id="compNewCat" class="input" placeholder="Nueva categoría" style="max-width:260px"/><button class="btn ghost sm" id="compCatAdd">＋ Agregar categoría</button></div>
+    </div>
+
+    <div class="card pad" style="margin-bottom:var(--sp)">
+      <h2 class="card-title" id="compFormTitle">Agregar compra o pendiente</h2>
+      <p class="card-note">Registra lo que necesitas o lo que ya compraste, con responsable, lugar y comprobante.</p>
       <div class="form-grid">
         <div class="full"><label class="fld" for="compNombre">Artículo</label><input id="compNombre" class="input" placeholder="Ej. Jerga de 2 metros para limpieza"/></div>
-        <div><label class="fld" for="compCat">Categoría</label><select id="compCat" class="input"><option>Vehículo</option><option>Limpieza</option><option>Seguridad</option><option>Oficina</option><option>Otros</option></select></div>
-        <div><label class="fld" for="compCosto">Costo estimado</label><div class="money-input sm"><span class="peso">$</span><input id="compCosto" class="money" inputmode="decimal" placeholder="0.00"/></div></div>
-        <div class="full"><label class="fld" for="compNota">Nota (opcional)</label><input id="compNota" class="input" placeholder="Ej. medidas, modelo, dónde comprarlo…"/></div>
+        <div><label class="fld" for="compCat">Categoría</label><select id="compCat" class="input"></select></div>
+        <div><label class="fld" for="compPrio">Prioridad</label><select id="compPrio" class="input"><option>Alta</option><option selected>Media</option><option>Baja</option></select></div>
+        <div><label class="fld" for="compCosto">Costo</label><div class="money-input sm"><span class="peso">$</span><input id="compCosto" class="money" inputmode="decimal" placeholder="0.00"/></div></div>
+        <div><label class="fld" for="compQuien">Quién compra</label><input id="compQuien" class="input" placeholder="Ej. Kevin"/></div>
+        <div><label class="fld" for="compFecha">Fecha de compra</label><input id="compFecha" type="date" class="input"/></div>
+        <div><label class="fld" for="compDonde">Dónde se compra</label><input id="compDonde" class="input" placeholder="Ej. AutoZone, tianguis…"/></div>
+        <div><label class="fld" for="compComprobante">Comprobante</label><select id="compComprobante" class="input"><option>Ninguno</option><option>Nota</option><option>Factura</option><option>Recibo</option><option>Ticket</option></select></div>
+        <div class="full"><label class="fld" for="compNota">Nota (opcional)</label><input id="compNota" class="input" placeholder="Ej. medidas, modelo…"/></div>
+        <div><label class="fld">Estado</label><label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);font-weight:600;cursor:pointer;height:42px"><input type="checkbox" id="compHecho"/> Ya se compró</label></div>
       </div>
-      <div class="field-actions"><button class="btn primary" id="compAdd" style="min-width:150px">＋ Agregar</button></div>
+      <div class="field-actions"><button class="btn primary" id="compAdd" style="min-width:150px">＋ Agregar</button><button class="btn ghost" id="compCancel" style="display:none">Cancelar</button><button class="btn primary sm" id="compPdf" style="margin-left:auto">⬇ PDF</button></div>
     </div>
-    <div class="card pad"><h2 class="card-title">Lista de pendientes</h2><p class="card-note">Marca lo que ya compraste.</p><div class="rlist" id="compList"></div></div>
+
+    <div class="card pad">
+      <div class="head"><h2 class="card-title" style="margin:0">Lista</h2><div class="actions"><select id="compFilter" class="input" style="min-width:160px"><option value="all">Todas</option><option value="pend">Solo pendientes</option><option value="hechos">Solo comprados</option></select></div></div>
+      <div class="rlist" id="compList"></div>
+    </div>
   </section>
 
   <!-- ===== CONTACTOS ===== -->
   <section class="panel" id="contactos">
     <div class="card pad" style="margin-bottom:var(--sp)">
-      <h2 class="card-title">Agregar contacto</h2>
-      <p class="card-note">Teléfonos y correos a la mano. Toca para llamar o enviar correo.</p>
+      <h2 class="card-title" id="ctFormTitle">Agregar contacto</h2>
+      <p class="card-note">Clasifica cada contacto; se distinguen por color. Todos son editables, incluidos los precargados.</p>
       <div class="form-grid">
         <div><label class="fld" for="ctNombre">Nombre</label><input id="ctNombre" class="input" placeholder="Ej. Mecánico, Seguro, Grúa…"/></div>
+        <div><label class="fld" for="ctTipo">Tipo</label><select id="ctTipo" class="input"><option value="emergencia">Emergencia</option><option value="operacion">Operación de la unidad</option><option value="administracion">Administración</option></select></div>
         <div><label class="fld" for="ctTel">Teléfono</label><input id="ctTel" class="input" inputmode="tel" placeholder="Ej. 55 1234 5678"/></div>
         <div><label class="fld" for="ctEmail">Email (opcional)</label><input id="ctEmail" class="input" inputmode="email" placeholder="correo@ejemplo.com"/></div>
         <div class="full"><label class="fld" for="ctNota">Nota (opcional)</label><input id="ctNota" class="input" placeholder="Ej. 24 horas, póliza #, zona…"/></div>
       </div>
-      <div class="field-actions"><button class="btn primary" id="ctAdd" style="min-width:150px">＋ Agregar</button></div>
+      <div class="field-actions"><button class="btn primary" id="ctAdd" style="min-width:150px">＋ Agregar</button><button class="btn ghost" id="ctCancel" style="display:none">Cancelar</button></div>
     </div>
     <div class="card pad">
       <h2 class="card-title">Directorio</h2>
       <p class="card-note">Incluye emergencias de Cuautitlán Izcalli, Estado de México. Verifica los números periódicamente.</p>
-      <div class="searchbox"><span class="mg">🔎</span><input id="ctSearch" placeholder="Buscar por nombre, teléfono o nota…" autocomplete="off"/></div>
+      <div class="legend"><span><i style="background:var(--out)"></i>Emergencia</span><span><i style="background:var(--brand)"></i>Operación</span><span><i style="background:var(--accent)"></i>Administración</span></div>
+      <div class="searchbox"><span class="mg">🔎</span><input id="ctSearch" placeholder="Buscar por nombre, teléfono, email o nota…" autocomplete="off"/></div>
       <div class="rlist" id="ctList"></div>
     </div>
   </section>
@@ -700,7 +744,7 @@ function closestBelow(target,values){ if(!values.length) return 0; const g=value
 /* ===== Persistencia ===== */
 const LS={ mov:'cajaMXN_mov_v1',cats:'cajaMXN_cats_v1',den:'cajaMXN_den_v1',theme:'cajaMXN_theme_v1',
   rem:'cajaMXN_pf_v3',paylog:'cajaMXN_paylog_v3',comp:'cajaMXN_comp_v2',ct:'cajaMXN_ct_v3',payer:'cajaMXN_payer_v1',
-  resp:'cajaMXN_resp_v1',oper:'cajaMXN_oper_v1',serv:'cajaMXN_serv_v1',inv:'cajaMXN_inv_v1',fondo:'cajaMXN_fondo_v1' };
+  resp:'cajaMXN_resp_v1',oper:'cajaMXN_oper_v1',serv:'cajaMXN_serv_v1',inv:'cajaMXN_inv_v1',fondo:'cajaMXN_fondo_v1',compCats:'cajaMXN_compcats_v1' };
 function load(k,f){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f; }catch(e){ return f; } }
 function save(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
@@ -721,19 +765,20 @@ function seedCompras(){ return [
   {nombre:'Botaaguas',categoria:'Vehículo'},{nombre:'Cámaras de vigilancia',categoria:'Seguridad'},
   {nombre:'Cóncavos de retrovisor',categoria:'Vehículo'},{nombre:'Consoleta',categoria:'Vehículo'},
   {nombre:'Bocinas para vehículo',categoria:'Vehículo'},{nombre:'Cinta para llaves de encendido',categoria:'Vehículo'},
-].map(x=>({id:uid(),nombre:x.nombre,categoria:x.categoria,costo:0,comprado:false,nota:''})); }
+].map(x=>({id:uid(),nombre:x.nombre,categoria:x.categoria,costo:0,comprado:false,prioridad:'Media',quien:'',fecha:'',donde:'',comprobante:'Ninguno',nota:''})); }
+function seedCompCats(){ return ['Vehículo','Limpieza','Seguridad','Oficina','Refacciones','Combustible','Otros']; }
 function seedContactos(){ return [
-  {id:uid(),nombre:'Emergencias (911)',telefono:'911',email:'',nota:'Emergencias — todo México',emg:true},
-  {id:uid(),nombre:'Seguridad Ciudadana Izcalli',telefono:'55 5868 4989',email:'',nota:'Comisaría general',emg:true},
-  {id:uid(),nombre:'Centro de mando Izcalli',telefono:'55 5871 1111',email:'',nota:'C4 municipal',emg:true},
-  {id:uid(),nombre:'Protección Civil y Bomberos Izcalli',telefono:'55 2620 1909',email:'',nota:'',emg:true},
-  {id:uid(),nombre:'Cruz Roja Izcalli',telefono:'55 5873 3535',email:'',nota:'Emergencias médicas',emg:true},
-  {id:uid(),nombre:'Búsqueda de personas Izcalli',telefono:'55 5914 2602',email:'',nota:'Célula de búsqueda',emg:true},
-  {id:uid(),nombre:'LOCATEL Edoméx',telefono:'55 5658 1111',email:'',nota:'Información y localización',emg:true},
-  {id:uid(),nombre:'Denuncia anónima',telefono:'089',email:'',nota:'',emg:true},
-  {id:uid(),nombre:'Atención ciudadana',telefono:'088',email:'',nota:'Guardia Nacional',emg:true},
-  {id:uid(),nombre:'Ángeles Verdes (carretera)',telefono:'078',email:'',nota:'Auxilio vial',emg:true},
-  {id:uid(),nombre:'Capufe (casetas)',telefono:'074',email:'',nota:'Carreteras y casetas',emg:true},
+  {id:uid(),nombre:'Emergencias (911)',telefono:'911',email:'',nota:'Emergencias — todo México',tipo:'emergencia'},
+  {id:uid(),nombre:'Seguridad Ciudadana Izcalli',telefono:'55 5868 4989',email:'',nota:'Comisaría general',tipo:'emergencia'},
+  {id:uid(),nombre:'Centro de mando Izcalli',telefono:'55 5871 1111',email:'',nota:'C4 municipal',tipo:'emergencia'},
+  {id:uid(),nombre:'Protección Civil y Bomberos Izcalli',telefono:'55 2620 1909',email:'',nota:'',tipo:'emergencia'},
+  {id:uid(),nombre:'Cruz Roja Izcalli',telefono:'55 5873 3535',email:'',nota:'Emergencias médicas',tipo:'emergencia'},
+  {id:uid(),nombre:'Búsqueda de personas Izcalli',telefono:'55 5914 2602',email:'',nota:'Célula de búsqueda',tipo:'emergencia'},
+  {id:uid(),nombre:'LOCATEL Edoméx',telefono:'55 5658 1111',email:'',nota:'Información y localización',tipo:'emergencia'},
+  {id:uid(),nombre:'Denuncia anónima',telefono:'089',email:'',nota:'',tipo:'emergencia'},
+  {id:uid(),nombre:'Atención ciudadana',telefono:'088',email:'',nota:'Guardia Nacional',tipo:'emergencia'},
+  {id:uid(),nombre:'Ángeles Verdes (carretera)',telefono:'078',email:'',nota:'Auxilio vial',tipo:'emergencia'},
+  {id:uid(),nombre:'Capufe (casetas)',telefono:'074',email:'',nota:'Carreteras y casetas',tipo:'emergencia'},
 ]; }
 function seedResp(){ return [
   {id:uid(),actividad:'Registrar ingresos del día',principal:'Kevin',apoyo:'Operador',frecuencia:'Diario',cuando:'Al cierre del día',apartado:'Movimientos'},
@@ -747,9 +792,9 @@ let state={
   mov:load(LS.mov,[]), cats:load(LS.cats,structuredClone(DEFAULT_CATS)), den:load(LS.den,DENOMS.map(d=>d.v)), tipoModo:'ambos',
   rem:load(LS.rem,null), paylog:load(LS.paylog,[]), comp:load(LS.comp,null), ct:load(LS.ct,null), payer:load(LS.payer,''),
   resp:load(LS.resp,null), oper:load(LS.oper,[]), serv:load(LS.serv,null),
-  inv:load(LS.inv,{valor:0,inicio:'2026-10-20',conceptos:[]}), fondo:load(LS.fondo,{min:0}),
+  inv:load(LS.inv,{valor:0,inicio:'2026-10-20',conceptos:[]}), fondo:load(LS.fondo,{min:0}), compCats:load(LS.compCats,null),
 };
-let movTipo='ingreso',countTipo='ingreso',donutTipo='egreso',remEditId=null,remWeekSel=new Set(),movEditId=null,respEditId=null;
+let movTipo='ingreso',countTipo='ingreso',donutTipo='egreso',remEditId=null,remWeekSel=new Set(),movEditId=null,respEditId=null,ctEditId=null,compEditId=null;
 
 /* ===== Utilidades ===== */
 const $=s=>document.querySelector(s); const $$=s=>[...document.querySelectorAll(s)];
@@ -1010,24 +1055,66 @@ $('#respPdf').addEventListener('click',()=>{ if(!state.resp.length){ toast('Sin 
 function renderResp(){ const cont=$('#respTable'); if(!state.resp.length){ cont.innerHTML=`<div class="empty"><div class="big">📋</div>Sin responsabilidades. Agrega una arriba.</div>`; return; } cont.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Actividad</th><th>Responsable</th><th>Apoya</th><th>Frecuencia</th><th>Cuándo</th><th>Se registra en</th><th></th></tr></thead><tbody>${state.resp.map(r=>`<tr><td style="white-space:normal;max-width:220px">${r.actividad}</td><td>${r.principal}</td><td>${r.apoyo}</td><td><span class="pill cat">${r.frecuencia}</span></td><td style="white-space:normal;max-width:160px;color:var(--muted)">${r.cuando}</td><td><span class="pill cat">${r.apartado}</span></td><td style="width:70px"><button class="edit" data-edit="${r.id}">✏️</button><button class="del" data-del="${r.id}">🗑</button></td></tr>`).join('')}</tbody></table></div>`; cont.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editResp(b.dataset.edit)); cont.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ if(!confirm('¿Eliminar?'))return; state.resp=state.resp.filter(x=>x.id!==b.dataset.del); save(LS.resp,state.resp); renderResp(); }); }
 
 /* ============ COMPRAS ============ */
-$('#compAdd').addEventListener('click',()=>{ const nombre=$('#compNombre').value.trim(); if(!nombre){ toast('Escribe el artículo'); return; } state.comp.push({id:uid(),nombre,categoria:$('#compCat').value,costo:parseCentavos($('#compCosto').value),comprado:false,nota:$('#compNota').value.trim()}); save(LS.comp,state.comp); $('#compNombre').value=''; $('#compCosto').value=''; $('#compNota').value=''; renderCompras(); toast('Pendiente agregado'); });
-function renderCompras(){ const pend=state.comp.filter(c=>!c.comprado); const hechos=state.comp.filter(c=>c.comprado); $('#cPend').textContent=pend.length; $('#cHechos').textContent=hechos.length; $('#cCosto').textContent=fmt(pend.reduce((a,c)=>a+(c.costo||0),0)); const sorted=[...state.comp].sort((a,b)=>(a.comprado?1:0)-(b.comprado?1:0)); const list=$('#compList'); list.innerHTML=sorted.map(c=>`<div class="ritem${c.comprado?' done':''}"><div class="checkbox${c.comprado?' on':''}" data-chk="${c.id}">${c.comprado?'✓':''}</div><div class="main"><div class="rname" style="${c.comprado?'text-decoration:line-through':''}">${c.nombre} <span class="pill cat">${c.categoria}</span></div>${c.nota?`<div class="rmeta">${c.nota}</div>`:''}</div><div class="rmoney money">${c.costo>0?fmt(c.costo):'—'}</div><div class="ract"><button class="del" data-del="${c.id}">🗑</button></div></div>`).join('')||`<div class="empty"><div class="big">🛒</div>No hay pendientes.</div>`; list.querySelectorAll('[data-chk]').forEach(b=>b.onclick=()=>{ const c=state.comp.find(x=>x.id===b.dataset.chk); c.comprado=!c.comprado; save(LS.comp,state.comp); renderCompras(); }); list.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ state.comp=state.comp.filter(x=>x.id!==b.dataset.del); save(LS.comp,state.comp); renderCompras(); }); }
+const PRIO_ORDER={Alta:0,Media:1,Baja:2};
+function compCatColor(cat){ const i=state.compCats.indexOf(cat); return CAT_PALETTE[(i<0?CAT_PALETTE.length-1:i)%CAT_PALETTE.length]; }
+function prioClass(p){ return 'prio-'+(p||'Media').toLowerCase(); }
+function refreshCompCatSelect(){ const sel=$('#compCat'); const cur=sel.value; sel.innerHTML=state.compCats.map(c=>`<option>${c}</option>`).join('')+`<option value="__new__">＋ Nueva categoría…</option>`; if(state.compCats.includes(cur)) sel.value=cur; }
+$('#compCat').addEventListener('change',e=>{ if(e.target.value==='__new__'){ const n=(prompt('Nombre de la nueva categoría:')||'').trim(); if(n&&!state.compCats.includes(n)){ state.compCats.push(n); save(LS.compCats,state.compCats); renderCompCatChips(); refreshCompCatSelect(); e.target.value=n; } else refreshCompCatSelect(); } });
+$('#compCatAdd').addEventListener('click',()=>{ const n=$('#compNewCat').value.trim(); if(!n){ toast('Escribe la categoría'); return; } if(state.compCats.includes(n)){ toast('Ya existe'); return; } state.compCats.push(n); save(LS.compCats,state.compCats); $('#compNewCat').value=''; renderCompCatChips(); refreshCompCatSelect(); toast('Categoría agregada'); });
+function renderCompCatChips(){ const w=$('#compCatChips'); w.innerHTML=state.compCats.map(c=>`<span class="catchip"><span class="cdot" style="background:${compCatColor(c)}"></span>${c}<button class="cx" data-ren="${c}" title="Renombrar">✏️</button><button class="cx" data-delc="${c}" title="Eliminar">✕</button></span>`).join('')||'<span class="inline-note">Sin categorías.</span>';
+  w.querySelectorAll('[data-ren]').forEach(b=>b.onclick=()=>{ const old=b.dataset.ren; const n=(prompt('Nuevo nombre de la categoría:',old)||'').trim(); if(!n||n===old) return; if(state.compCats.includes(n)){ toast('Ya existe'); return; } state.compCats=state.compCats.map(x=>x===old?n:x); state.comp.forEach(c=>{ if(c.categoria===old) c.categoria=n; }); save(LS.compCats,state.compCats); save(LS.comp,state.comp); renderCompras(); toast('Categoría renombrada'); });
+  w.querySelectorAll('[data-delc]').forEach(b=>b.onclick=()=>{ const cat=b.dataset.delc; const uso=state.comp.filter(c=>c.categoria===cat).length; if(uso&&!confirm(`${uso} artículo(s) usan "${cat}". Pasarán a "Otros". ¿Eliminar la categoría?`)) return; state.compCats=state.compCats.filter(x=>x!==cat); if(!state.compCats.includes('Otros')) state.compCats.push('Otros'); state.comp.forEach(c=>{ if(c.categoria===cat) c.categoria='Otros'; }); save(LS.compCats,state.compCats); save(LS.comp,state.comp); renderCompras(); toast('Categoría eliminada'); }); }
+function resetCompForm(){ compEditId=null; $('#compNombre').value=''; $('#compCosto').value=''; $('#compQuien').value=''; $('#compDonde').value=''; $('#compNota').value=''; $('#compPrio').value='Media'; $('#compComprobante').value='Ninguno'; $('#compHecho').checked=false; $('#compFecha').value=todayStr(); $('#compFormTitle').textContent='Agregar compra o pendiente'; $('#compAdd').textContent='＋ Agregar'; $('#compCancel').style.display='none'; }
+$('#compCancel').addEventListener('click',resetCompForm);
+$('#compAdd').addEventListener('click',()=>{ const nombre=$('#compNombre').value.trim(); if(!nombre){ toast('Escribe el artículo'); return; } let cat=$('#compCat').value; if(cat==='__new__') cat=state.compCats[0]||'Otros';
+  const rec={ nombre, categoria:cat, costo:parseCentavos($('#compCosto').value), prioridad:$('#compPrio').value, comprado:$('#compHecho').checked, quien:$('#compQuien').value.trim(), fecha:$('#compFecha').value||'', donde:$('#compDonde').value.trim(), comprobante:$('#compComprobante').value, nota:$('#compNota').value.trim() };
+  if(compEditId){ const c=state.comp.find(x=>x.id===compEditId); if(c) Object.assign(c,rec); toast('Compra actualizada'); } else { state.comp.push({id:uid(),...rec}); toast('Agregado'); }
+  save(LS.comp,state.comp); resetCompForm(); renderCompras(); });
+function editComp(id){ const c=state.comp.find(x=>x.id===id); if(!c) return; compEditId=id; $('#compNombre').value=c.nombre; refreshCompCatSelect(); $('#compCat').value=c.categoria; $('#compPrio').value=c.prioridad||'Media'; $('#compCosto').value=c.costo?c.costo/100:''; $('#compQuien').value=c.quien||''; $('#compFecha').value=c.fecha||todayStr(); $('#compDonde').value=c.donde||''; $('#compComprobante').value=c.comprobante||'Ninguno'; $('#compNota').value=c.nota||''; $('#compHecho').checked=!!c.comprado; $('#compFormTitle').textContent='Editar compra'; $('#compAdd').textContent='Guardar cambios'; $('#compCancel').style.display='inline-flex'; document.getElementById('compras').scrollIntoView({behavior:'smooth',block:'start'}); }
+$('#compFilter').addEventListener('change',renderCompras);
+$('#compPdf').addEventListener('click',()=>{ if(!state.comp.length){ toast('Sin compras'); return; } const rows=[...state.comp].sort((a,b)=>{ if(a.comprado!==b.comprado) return a.comprado?1:-1; return (PRIO_ORDER[a.prioridad]??1)-(PRIO_ORDER[b.prioridad]??1); }); const body=rows.map(c=>[c.comprado?'Comprado':'Pendiente',c.nombre,c.categoria,c.prioridad||'Media',c.quien||'—',c.fecha?fmtDate(c.fecha):'—',c.donde||'—',c.comprobante||'—',c.costo>0?mxn.format(c.costo/100):'—']); const totC=state.comp.filter(c=>c.comprado).reduce((a,c)=>a+(c.costo||0),0); const totP=state.comp.filter(c=>!c.comprado).reduce((a,c)=>a+(c.costo||0),0); exportTablePDF('Compras','Historial y pendientes de compra',['Estado','Artículo','Categoría','Prioridad','Quién','Fecha','Dónde','Comprob.','Costo'],body,{8:{halign:'right',fontStyle:'bold'}},`Comprado: ${fmt(totC)}   Pendiente (estimado): ${fmt(totP)}`); });
+function renderCompras(){
+  renderCompCatChips(); refreshCompCatSelect();
+  const pend=state.comp.filter(c=>!c.comprado); const hechos=state.comp.filter(c=>c.comprado);
+  $('#cPend').textContent=pend.length; $('#cHechos').textContent=hechos.length; $('#cCosto').textContent=fmt(pend.reduce((a,c)=>a+(c.costo||0),0));
+  // Periodos (comprados con fecha)
+  const today=todayStr(); const [ws,we]=weekRange(); const [fsr,fer]=fortnightRange(); const mk=monthKey(today); const ms=mk+'-01'; const me=mk+'-'+pad(lastDay(parseISO(today).getFullYear(),parseISO(today).getMonth())); const yr=today.slice(0,4);
+  const sumC=(d,h)=>state.comp.filter(c=>c.comprado&&c.fecha&&c.fecha>=d&&c.fecha<=h).reduce((a,c)=>a+(c.costo||0),0);
+  $('#cpDia').textContent=fmt(sumC(today,today)); $('#cpSem').textContent=fmt(sumC(ws,we)); $('#cpQui').textContent=fmt(sumC(fsr,fer)); $('#cpMes').textContent=fmt(sumC(ms,me)); $('#cpAnu').textContent=fmt(sumC(yr+'-01-01',yr+'-12-31'));
+  const filt=$('#compFilter').value; let arr=state.comp; if(filt==='pend') arr=arr.filter(c=>!c.comprado); else if(filt==='hechos') arr=arr.filter(c=>c.comprado);
+  const sorted=[...arr].sort((a,b)=>{ if(a.comprado!==b.comprado) return a.comprado?1:-1; return (PRIO_ORDER[a.prioridad]??1)-(PRIO_ORDER[b.prioridad]??1); });
+  const list=$('#compList');
+  list.innerHTML=sorted.map(c=>{ const col=compCatColor(c.categoria); const meta=[]; if(c.quien) meta.push('👤 '+c.quien); if(c.fecha) meta.push('📅 '+fmtDate(c.fecha)); if(c.donde) meta.push('📍 '+c.donde); if(c.comprobante&&c.comprobante!=='Ninguno') meta.push('🧾 '+c.comprobante); if(c.nota) meta.push(c.nota);
+    return `<div class="ritem${c.comprado?' done':''}"><div class="checkbox${c.comprado?' on':''}" data-chk="${c.id}">${c.comprado?'✓':''}</div><div class="main"><div class="rname" style="${c.comprado?'text-decoration:line-through':''}">${c.nombre} <span class="pill" style="background:${col}22;color:${col};border:1px solid ${col}55">${c.categoria}</span> <span class="pill ${prioClass(c.prioridad)}">${c.prioridad||'Media'}</span></div>${meta.length?`<div class="rmeta">${meta.join(' · ')}</div>`:''}</div><div class="rmoney money">${c.costo>0?fmt(c.costo):'—'}</div><div class="ract"><button class="edit" data-edit="${c.id}">✏️</button><button class="del" data-del="${c.id}">🗑</button></div></div>`; }).join('')||`<div class="empty"><div class="big">🛒</div>No hay compras en este filtro.</div>`;
+  list.querySelectorAll('[data-chk]').forEach(b=>b.onclick=()=>{ const c=state.comp.find(x=>x.id===b.dataset.chk); c.comprado=!c.comprado; if(c.comprado&&!c.fecha) c.fecha=todayStr(); save(LS.comp,state.comp); renderCompras(); });
+  list.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editComp(b.dataset.edit));
+  list.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ state.comp=state.comp.filter(x=>x.id!==b.dataset.del); save(LS.comp,state.comp); renderCompras(); });
+}
 
 /* ============ CONTACTOS ============ */
-const AVA_COLORS=['#0f6d63','#2b6cb0','#d53f8c','#c05621','#8e4a9e','#2f855a','#b7791f'];
-$('#ctAdd').addEventListener('click',()=>{ const nombre=$('#ctNombre').value.trim(); const tel=$('#ctTel').value.trim(); const email=$('#ctEmail').value.trim(); if(!nombre||(!tel&&!email)){ toast('Nombre y al menos teléfono o email'); return; } state.ct.push({id:uid(),nombre,telefono:tel,email,nota:$('#ctNota').value.trim(),emg:false}); save(LS.ct,state.ct); $('#ctNombre').value=''; $('#ctTel').value=''; $('#ctEmail').value=''; $('#ctNota').value=''; renderContactos(); toast('Contacto agregado'); });
+const CT_TIPOS={emergencia:{label:'Emergencia',cls:'emg',color:'#e5484d',ava:'#e5484d'},operacion:{label:'Operación',cls:'op',color:'#0f6d63',ava:'#0f6d63'},administracion:{label:'Administración',cls:'adm',color:'#e0a938',ava:'#c77d12'}};
+function resetCtForm(){ ctEditId=null; $('#ctNombre').value=''; $('#ctTipo').value='emergencia'; $('#ctTel').value=''; $('#ctEmail').value=''; $('#ctNota').value=''; $('#ctFormTitle').textContent='Agregar contacto'; $('#ctAdd').textContent='＋ Agregar'; $('#ctCancel').style.display='none'; }
+$('#ctCancel').addEventListener('click',resetCtForm);
+$('#ctAdd').addEventListener('click',()=>{ const nombre=$('#ctNombre').value.trim(); const tel=$('#ctTel').value.trim(); const email=$('#ctEmail').value.trim(); if(!nombre||(!tel&&!email)){ toast('Nombre y al menos teléfono o email'); return; } const rec={nombre,telefono:tel,email,nota:$('#ctNota').value.trim(),tipo:$('#ctTipo').value}; if(ctEditId){ const c=state.ct.find(x=>x.id===ctEditId); if(c) Object.assign(c,rec); toast('Contacto actualizado'); } else { state.ct.push({id:uid(),...rec}); toast('Contacto agregado'); } save(LS.ct,state.ct); resetCtForm(); renderContactos(); });
+function editCt(id){ const c=state.ct.find(x=>x.id===id); if(!c) return; ctEditId=id; $('#ctNombre').value=c.nombre; $('#ctTipo').value=c.tipo||'emergencia'; $('#ctTel').value=c.telefono||''; $('#ctEmail').value=c.email||''; $('#ctNota').value=c.nota||''; $('#ctFormTitle').textContent='Editar contacto'; $('#ctAdd').textContent='Guardar cambios'; $('#ctCancel').style.display='inline-flex'; document.getElementById('contactos').scrollIntoView({behavior:'smooth',block:'start'}); }
 $('#ctSearch').addEventListener('input',renderContactos);
-function renderContactos(){ const q=($('#ctSearch').value||'').toLowerCase().trim(); const list=$('#ctList'); let arr=state.ct; if(q) arr=arr.filter(c=>(c.nombre+' '+c.telefono+' '+(c.email||'')+' '+(c.nota||'')).toLowerCase().includes(q)); arr=[...arr].sort((a,b)=>(b.emg?1:0)-(a.emg?1:0)); list.innerHTML=arr.map((c,i)=>{ const tel=(c.telefono||'').replace(/[^0-9+]/g,''); const ini=(c.nombre.trim()[0]||'?').toUpperCase(); const links=[]; if(c.telefono) links.push(`<a class="clink" href="tel:${tel}">📞 Llamar</a>`); if(c.email) links.push(`<a class="clink" href="mailto:${c.email}">✉️ Email</a>`); return `<div class="contact${c.emg?' emg':''}"><div class="ava" style="background:${c.emg?'#e5484d':AVA_COLORS[i%AVA_COLORS.length]}">${c.emg?'!':ini}</div><div class="cmain"><div class="cname">${c.nombre}</div><div class="inline-note money">${c.telefono||''}${c.email?(c.telefono?' · ':'')+c.email:''}</div>${c.nota?`<div class="cnote">${c.nota}</div>`:''}<div class="clinks">${links.join('')}</div></div><button class="del" data-del="${c.id}">🗑</button></div>`; }).join('')||`<div class="empty"><div class="big">☎️</div>${q?'Sin resultados para la búsqueda.':'No hay contactos.'}</div>`; list.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ const c=state.ct.find(x=>x.id===b.dataset.del); if(c&&c.emg&&!confirm('Es un contacto de emergencia. ¿Eliminarlo?')) return; state.ct=state.ct.filter(x=>x.id!==b.dataset.del); save(LS.ct,state.ct); renderContactos(); }); }
+const CT_ORDER={emergencia:0,operacion:1,administracion:2};
+function renderContactos(){ const q=($('#ctSearch').value||'').toLowerCase().trim(); const list=$('#ctList'); let arr=state.ct; if(q) arr=arr.filter(c=>(c.nombre+' '+c.telefono+' '+(c.email||'')+' '+(c.nota||'')+' '+(CT_TIPOS[c.tipo]?CT_TIPOS[c.tipo].label:'')).toLowerCase().includes(q)); arr=[...arr].sort((a,b)=>(CT_ORDER[a.tipo]??3)-(CT_ORDER[b.tipo]??3)); list.innerHTML=arr.map(c=>{ const t=CT_TIPOS[c.tipo]||CT_TIPOS.operacion; const tel=(c.telefono||'').replace(/[^0-9+]/g,''); const ini=(c.nombre.trim()[0]||'?').toUpperCase(); const links=[]; if(c.telefono) links.push(`<a class="clink" href="tel:${tel}">📞 Llamar</a>`); if(c.email) links.push(`<a class="clink" href="mailto:${c.email}">✉️ Email</a>`); return `<div class="contact ${t.cls}"><div class="ava" style="background:${t.ava}">${c.tipo==='emergencia'?'!':ini}</div><div class="cmain"><div class="cname">${c.nombre} <span class="pill ctT" style="background:${t.color}">${t.label}</span></div><div class="inline-note money">${c.telefono||''}${c.email?(c.telefono?' · ':'')+c.email:''}</div>${c.nota?`<div class="cnote">${c.nota}</div>`:''}<div class="clinks">${links.join('')}</div></div><div class="ract"><button class="edit" data-edit="${c.id}">✏️</button><button class="del" data-del="${c.id}">🗑</button></div></div>`; }).join('')||`<div class="empty"><div class="big">☎️</div>${q?'Sin resultados para la búsqueda.':'No hay contactos.'}</div>`; list.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editCt(b.dataset.edit)); list.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ const c=state.ct.find(x=>x.id===b.dataset.del); if(c&&c.tipo==='emergencia'&&!confirm('Es un contacto de emergencia. ¿Eliminarlo?')) return; state.ct=state.ct.filter(x=>x.id!==b.dataset.del); save(LS.ct,state.ct); renderContactos(); }); }
 
 /* ===== Migración / semillas ===== */
 if(!state.rem){ state.rem=seedRem(); save(LS.rem,state.rem); }
 if(!state.comp){ state.comp=seedCompras(); save(LS.comp,state.comp); }
+if(!state.compCats){ state.compCats=seedCompCats(); save(LS.compCats,state.compCats); }
 if(!state.ct){ state.ct=seedContactos(); save(LS.ct,state.ct); }
+// Migración: contactos previos con emg -> tipo
+let ctMig=false; state.ct.forEach(c=>{ if(!c.tipo){ c.tipo=c.emg?'emergencia':'operacion'; ctMig=true; } }); if(ctMig) save(LS.ct,state.ct);
+// Migración: compras previas sin campos nuevos
+let cMig=false; state.comp.forEach(c=>{ if(c.prioridad===undefined){ c.prioridad='Media'; c.quien=c.quien||''; c.fecha=c.fecha||''; c.donde=c.donde||''; c.comprobante=c.comprobante||'Ninguno'; cMig=true; } if(!state.compCats.includes(c.categoria)){ state.compCats.push(c.categoria); cMig=true; } }); if(cMig){ save(LS.comp,state.comp); save(LS.compCats,state.compCats); }
 if(!state.resp){ state.resp=seedResp(); save(LS.resp,state.resp); }
 if(!state.serv){ state.serv=seedServ(); save(LS.serv,state.serv); }
 
 /* ===== INIT ===== */
-$('#movFecha').value=todayStr(); $('#movResp').value=state.payer||''; $('#opFecha').value=todayStr(); populateMeses(); $('#remDesde').value=todayStr();
+$('#movFecha').value=todayStr(); $('#movResp').value=state.payer||''; $('#opFecha').value=todayStr(); $('#compFecha').value=todayStr(); populateMeses(); $('#remDesde').value=todayStr();
 renderDenChips(); renderCountGrid(); refreshCatSelect(); renderMov(); computeDesglose(); renderWeekChips(); showFreqGroups();
 </script>
 </body>
