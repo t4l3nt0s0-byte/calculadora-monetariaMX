@@ -405,7 +405,7 @@
     <div class="card pad" style="margin-bottom:var(--sp)">
       <div class="head">
         <div><h2 class="card-title" style="margin:0">Ingresos por periodo</h2><p class="card-note tight" style="margin-top:3px">Elige una fecha para ver día, semana, quincena, mes y total del año.</p></div>
-        <div class="actions"><input id="inFecha" type="date" class="input" style="min-width:160px"/><button class="btn primary sm" id="inPdf">⬇ PDF del mes</button></div>
+        <div class="actions"><input id="inFecha" type="date" class="input" style="min-width:150px"/><div class="seg" id="inSemSeg"><button data-w="full" class="on">Lun–Dom</button><button data-w="lv">Lun–Vie</button></div><button class="btn primary sm" id="inPdf">⬇ PDF del mes</button></div>
       </div>
       <div class="kpis c5">
         <div class="kpi in"><div class="k" id="inkDia">Día</div><div class="v money" id="inDia">$0.00</div></div>
@@ -425,7 +425,7 @@
     <div class="card pad" style="margin-bottom:var(--sp)">
       <div class="head">
         <div><h2 class="card-title" style="margin:0">Egresos por periodo</h2><p class="card-note tight" style="margin-top:3px">Elige una fecha para ver día, semana, quincena, mes y total del año.</p></div>
-        <div class="actions"><input id="egFecha" type="date" class="input" style="min-width:160px"/><button class="btn primary sm" id="egPdf">⬇ PDF del mes</button></div>
+        <div class="actions"><input id="egFecha" type="date" class="input" style="min-width:150px"/><div class="seg" id="egSemSeg"><button data-w="full" class="on">Lun–Dom</button><button data-w="lv">Lun–Vie</button></div><button class="btn primary sm" id="egPdf">⬇ PDF del mes</button></div>
       </div>
       <div class="kpis c5">
         <div class="kpi out"><div class="k" id="egkDia">Día</div><div class="v money" id="egDia">$0.00</div></div>
@@ -445,7 +445,7 @@
     <div class="card pad" style="margin-bottom:var(--sp)">
       <div class="head" style="margin:0">
         <div><h2 class="card-title" style="margin:0">Reportes y gráficos</h2><p class="card-note tight" style="margin-top:3px">Visualiza el flujo y exporta el mes en PDF.</p></div>
-        <div class="actions"><select id="repMonth" class="input" style="min-width:170px"></select><button class="btn primary" id="exportPdf">⬇ Exportar PDF</button></div>
+        <div class="actions"><div class="seg" id="repPeriodoSeg"><button data-p="semanal">Semana</button><button data-p="quincenal">Quincena</button><button data-p="mensual" class="on">Mes</button><button data-p="anual">Año</button></div><select id="repMonth" class="input" style="min-width:150px"></select><button class="btn primary" id="exportPdf">⬇ Exportar PDF</button></div>
       </div>
     </div>
     <div class="kpis c3" style="margin-bottom:var(--sp)">
@@ -454,7 +454,7 @@
       <div class="kpi"><div class="k">Balance del mes</div><div class="v money" id="rBal">$0.00</div></div>
     </div>
     <div class="charts">
-      <div class="card pad"><h3 class="card-title">Ingresos vs egresos por mes</h3><p class="card-note">Comparativo histórico.</p><div class="chart-box"><canvas id="chartBars"></canvas></div></div>
+      <div class="card pad"><h3 class="card-title">Ingresos vs egresos</h3><p class="card-note">Comparativo por el periodo elegido arriba (semana, quincena, mes o año).</p><div class="chart-box"><canvas id="chartBars"></canvas></div></div>
       <div class="card pad"><h3 class="card-title">Por categoría</h3><p class="card-note tight" id="donutNote" style="margin-bottom:10px">Distribución del mes.</p>
         <div class="seg" id="donutTipoSeg" style="margin-bottom:12px"><button data-t="egreso" class="on">Egresos</button><button data-t="ingreso">Ingresos</button></div>
         <div class="chart-box"><canvas id="chartDonut"></canvas></div></div>
@@ -498,6 +498,8 @@
           <select id="remForma" class="input">
             <option>Transferencia bancaria</option><option>Presencial / efectivo</option><option>Descuento</option><option>Domiciliado</option><option>Tarjeta</option><option>Otra</option>
           </select></div>
+        <div><label class="fld" for="remFlujo">Tipo</label><select id="remFlujo" class="input"><option value="egreso">Pago (egreso)</option><option value="ingreso">Cobro (ingreso)</option></select></div>
+        <div><label class="fld">Monto variable</label><label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);font-weight:600;cursor:pointer;height:42px"><input type="checkbox" id="remVariable"/> Preguntar el monto al registrar (p. ej. días trabajados)</label></div>
         <div class="full" id="grpSemanal" style="display:none">
           <label class="fld">Días de la semana</label>
           <div class="chips" id="weekChips" style="margin-bottom:10px"></div>
@@ -518,7 +520,7 @@
     <div class="card pad" style="margin-bottom:var(--sp)">
       <div class="head">
         <div><h2 class="card-title" style="margin:0">📅 Agenda de pagos (2026–2027)</h2><p class="card-note tight" style="margin-top:3px">Cada fecha de pago del mes; marca el check cuando ya pagaste.</p></div>
-        <div class="actions"><select id="remAgendaMes" class="input" style="min-width:170px"></select></div>
+        <div class="actions"><select id="remAgendaMes" class="input" style="min-width:160px"></select><select id="remAgendaSpan" class="input" style="min-width:120px"><option value="1">1 mes</option><option value="2">2 meses</option><option value="3">3 meses</option></select></div>
       </div>
       <div class="hint" id="remAgendaResumen" style="margin-top:0;margin-bottom:12px"></div>
       <div class="rlist" id="remAgenda"></div>
@@ -839,8 +841,8 @@ function closestBelow(target,values){ if(!values.length) return 0; const g=value
 
 /* ===== Persistencia ===== */
 const LS={ mov:'cajaMXN_mov_v1',cats:'cajaMXN_cats_v1',den:'cajaMXN_den_v1',theme:'cajaMXN_theme_v1',
-  rem:'cajaMXN_pf_v4',paylog:'cajaMXN_paylog_v3',comp:'cajaMXN_comp_v2',ct:'cajaMXN_ct_v3',payer:'cajaMXN_payer_v1',
-  resp:'cajaMXN_resp_v1',oper:'cajaMXN_oper_v1',serv:'cajaMXN_serv_v4',inv:'cajaMXN_inv_v1',fondo:'cajaMXN_fondo_v1',compCats:'cajaMXN_compcats_v1',operCats:'cajaMXN_opercats_v1',prest:'cajaMXN_prest_v1',ahorro:'cajaMXN_ahorro_v1',respNames:'cajaMXN_respnames_v1' };
+  rem:'cajaMXN_pf_v5',paylog:'cajaMXN_paylog_v3',comp:'cajaMXN_comp_v2',ct:'cajaMXN_ct_v3',payer:'cajaMXN_payer_v1',
+  resp:'cajaMXN_resp_v1',oper:'cajaMXN_oper_v1',serv:'cajaMXN_serv_v5',inv:'cajaMXN_inv_v1',fondo:'cajaMXN_fondo_v1',compCats:'cajaMXN_compcats_v1',operCats:'cajaMXN_opercats_v1',prest:'cajaMXN_prest_v1',ahorro:'cajaMXN_ahorro_v1',respNames:'cajaMXN_respnames_v1' };
 function load(k,f){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f; }catch(e){ return f; } }
 function save(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
@@ -850,10 +852,11 @@ const DEFAULT_CATS={
   egreso:['Combustible','Pagos fijos','Mantenimiento','Operador','Servicios (luz, agua, internet)','Insumos','Impuestos','Otros egresos']
 };
 function seedRem(){ return [
-  {id:uid(),nombre:'Pago de tarjeta',monto:85000,frecuencia:'semanal',diasSemana:[4],porDia:false,forma:'Transferencia bancaria',activo:true},
-  {id:uid(),nombre:'Prorrateo',monto:25000,frecuencia:'semanal',diasSemana:[4],porDia:false,forma:'Transferencia bancaria',activo:true},
-  {id:uid(),nombre:'Pensión del vehículo',monto:60000,frecuencia:'mensual',diaMes:18,forma:'Presencial / efectivo',activo:true},
-  {id:uid(),nombre:'Descuento de contabilidad',monto:40000,frecuencia:'quincenal',diasMes:[15,30],forma:'Descuento',activo:true},
+  {id:uid(),nombre:'Recibo de cuenta (operador)',monto:550000,frecuencia:'semanal',diasSemana:[5],porDia:false,forma:'Presencial / efectivo',flujo:'ingreso',variable:true,activo:true},
+  {id:uid(),nombre:'Pago de tarjeta',monto:85000,frecuencia:'semanal',diasSemana:[4],porDia:false,forma:'Transferencia bancaria',flujo:'egreso',variable:false,activo:true},
+  {id:uid(),nombre:'Prorrateo',monto:25000,frecuencia:'semanal',diasSemana:[4],porDia:false,forma:'Transferencia bancaria',flujo:'egreso',variable:false,activo:true},
+  {id:uid(),nombre:'Pensión del vehículo',monto:60000,frecuencia:'mensual',diaMes:18,forma:'Presencial / efectivo',flujo:'egreso',variable:false,activo:true},
+  {id:uid(),nombre:'Descuento de contabilidad',monto:40000,frecuencia:'quincenal',diasMes:[15,30],forma:'Descuento',flujo:'egreso',variable:false,activo:true},
 ]; }
 function seedOperCats(){ return ['Sueldo','Aguinaldo','Bono','Vales','Apoyo','Vacaciones','Otro']; }
 function seedCompras(){ return [
@@ -882,8 +885,8 @@ function seedResp(){ return [
   {id:uid(),actividad:'Servicio del vehículo',principal:'Kevin',apoyo:'Mecánico',frecuencia:'Cuando ocurre',cuando:'Cada 3 meses',apartado:'Servicios'},
 ]; }
 const SERV_BASE='2026-10-20'; // inicio de operación (unidad nueva, km 0) = referencia cero
-const OP_START='2026-10-20';  // nada se programa antes de esta fecha
-const SERV_FIN='2027-12-31';  // programa cubre 2026 y 2027
+const OP_START='2026-10-26';  // los cobros/pagos inician la semana del 26/oct (la primera semana fue gratis)
+const SERV_FIN='2030-12-31';  // programa de servicios hasta 2030
 // Servicios: se cuentan CADA 3 MESES a partir del 20/oct/2026 (el 20/oct es el cero, no es servicio).
 function seedServ(){ const cats=['Servicio menor (aceite y filtro)','Frenos','Servicio menor (aceite y filtro)','Servicio mayor (afinación)']; const out=[]; let d=addMonthsISO(SERV_BASE,3),i=0; while(d<=SERV_FIN){ out.push({id:uid(),fechaProg:d,categoria:cats[i%cats.length],estatus:'pendiente',costo:0,fechaReal:'',donde:'',quien:'',notas:''}); d=addMonthsISO(d,3); i++; } return out; }
 
@@ -895,6 +898,7 @@ let state={
   prest:load(LS.prest,[]), ahorro:load(LS.ahorro,{plan:{monto:0,frecuencia:'semanal'},deposits:[]}), respNames:load(LS.respNames,null),
 };
 let movTipo='ingreso',countTipo='ingreso',donutTipo='egreso',remEditId=null,remWeekSel=new Set(),movEditId=null,respEditId=null,ctEditId=null,compEditId=null;
+let semModo={in:'full',eg:'full'};
 
 /* ===== Utilidades ===== */
 const $=s=>document.querySelector(s); const $$=s=>[...document.querySelectorAll(s)];
@@ -1007,7 +1011,9 @@ function weekRangeOf(iso){ const d=parseISO(iso); const dow=(d.getDay()+6)%7; co
 function fortnightRangeOf(iso){ const d=parseISO(iso); const y=d.getFullYear(),m=d.getMonth(),day=d.getDate(); if(day<=15) return [toISO(new Date(y,m,1)),toISO(new Date(y,m,15))]; return [toISO(new Date(y,m,16)),toISO(new Date(y,m,lastDay(y,m)))]; }
 function renderPeriodo(tipo){
   const pre=tipo==='ingreso'?'in':'eg'; const sel=$('#'+pre+'Fecha'); const ref=(sel&&sel.value)?sel.value:todayStr(); if(sel&&!sel.value) sel.value=ref;
-  const [ws,we]=weekRangeOf(ref); const [fs,fe]=fortnightRangeOf(ref); const mk=monthKey(ref); const yY=parseISO(ref).getFullYear(),mM=parseISO(ref).getMonth(); const ms=mk+'-01'; const me=mk+'-'+pad(lastDay(yY,mM)); const yr=ref.slice(0,4);
+  let [ws,we]=weekRangeOf(ref); const [fs,fe]=fortnightRangeOf(ref); const mk=monthKey(ref); const yY=parseISO(ref).getFullYear(),mM=parseISO(ref).getMonth(); const ms=mk+'-01'; const me=mk+'-'+pad(lastDay(yY,mM)); const yr=ref.slice(0,4);
+  const modo=semModo[pre]||'full'; if(modo==='lv') we=toISO(addDays(parseISO(ws),4)); // Lun–Vie
+  const semLbl=document.querySelector('#'+pre+'Sem'); // etiqueta de semana
   $('#'+pre+'kDia').textContent='Día — '+fmtDate(ref); $('#'+pre+'kMes').textContent='Mes — '+monthLabel(mk); $('#'+pre+'kAnu').textContent='Año '+yr;
   $('#'+pre+'Dia').textContent=fmt(sumPeriodo(tipo,ref,ref));
   $('#'+pre+'Sem').textContent=fmt(sumPeriodo(tipo,ws,we));
@@ -1029,6 +1035,8 @@ function renderPeriodo(tipo){
 function periodoPDF(tipo){ const pre=tipo==='ingreso'?'in':'eg'; const ref=$('#'+pre+'Fecha').value||todayStr(); const mk=monthKey(ref); const rows=state.mov.filter(m=>m.tipo===tipo&&monthKey(m.fecha)===mk).sort((a,b)=>a.fecha<b.fecha?-1:1); if(!rows.length){ toast('Sin movimientos en el mes'); return; } const tot=rows.reduce((a,m)=>a+m.cents,0); const body=rows.map(m=>[m.fecha,m.cat,m.desc||'—',m.responsable||'—',m.clase||'Variable',m.frecuencia||'—',mxn.format(m.cents/100)]); exportTablePDF(tipo==='ingreso'?'Ingresos':'Egresos',monthLabel(mk),['Fecha','Concepto','Descripción',tipo==='ingreso'?'Fuente':'Quién',' Clase','Frecuencia','Monto'],body,{6:{halign:'right',fontStyle:'bold'}},`Total ${tipo==='ingreso'?'ingresos':'egresos'} de ${monthLabel(mk)}: ${fmt(tot)}`); }
 $('#inFecha').addEventListener('change',()=>renderPeriodo('ingreso')); $('#egFecha').addEventListener('change',()=>renderPeriodo('egreso'));
 $('#inPdf').addEventListener('click',()=>periodoPDF('ingreso')); $('#egPdf').addEventListener('click',()=>periodoPDF('egreso'));
+$('#inSemSeg').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return; semModo.in=b.dataset.w; $$('#inSemSeg button').forEach(x=>x.classList.toggle('on',x===b)); renderPeriodo('ingreso'); });
+$('#egSemSeg').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return; semModo.eg=b.dataset.w; $$('#egSemSeg button').forEach(x=>x.classList.toggle('on',x===b)); renderPeriodo('egreso'); });
 
 /* ============ REPORTES ============ */
 window._charts={};
@@ -1036,11 +1044,15 @@ function themeColors(){ const cs=getComputedStyle(document.documentElement); ret
 const CAT_PALETTE=['#0f6d63','#e0a938','#2b6cb0','#d53f8c','#2f855a','#c05621','#8e4a9e','#319795','#b7791f','#718096','#dd6b20','#38a169'];
 $('#donutTipoSeg').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return; donutTipo=b.dataset.t; $$('#donutTipoSeg button').forEach(x=>x.classList.toggle('on',x===b)); renderReportes(); });
 $('#repMonth').addEventListener('change',renderReportes);
+let repPeriodo='mensual';
+$('#repPeriodoSeg').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return; repPeriodo=b.dataset.p; $$('#repPeriodoSeg button').forEach(x=>x.classList.toggle('on',x===b)); renderReportes(); });
+function periodBucket(fecha,periodo){ const d=parseISO(fecha); if(periodo==='anual'){ const y=fecha.slice(0,4); return {k:y,label:y,ord:y}; } if(periodo==='mensual'){ const k=monthKey(fecha); return {k,label:monthLabel(k),ord:k}; } if(periodo==='quincenal'){ const mk=monthKey(fecha); const q=d.getDate()<=15?'1':'2'; return {k:mk+'-Q'+q,label:(q==='1'?'1ª ':'2ª ')+MONTHS[d.getMonth()].slice(0,3)+' '+d.getFullYear(),ord:mk+'-Q'+q}; } const dow=(d.getDay()+6)%7; const mon=addDays(d,-dow); const k=toISO(mon); return {k,label:pad(mon.getDate())+' '+MONTHS[mon.getMonth()].slice(0,3),ord:k}; }
 function monthData(key){ const rows=state.mov.filter(m=>monthKey(m.fecha)===key); let i=0,o=0; const byCat={ingreso:{},egreso:{}}; rows.forEach(m=>{ if(m.tipo==='ingreso')i+=m.cents; else o+=m.cents; byCat[m.tipo][m.cat]=(byCat[m.tipo][m.cat]||0)+m.cents; }); return {rows,inSum:i,outSum:o,byCat}; }
 function refreshRepMonths(){ const keys=[...new Set(state.mov.map(m=>monthKey(m.fecha)))].sort().reverse(); const r=$('#repMonth'); const cur=r.value; const rk=keys.length?keys:[monthKey(todayStr())]; r.innerHTML=rk.map(k=>`<option value="${k}">${monthLabel(k)}</option>`).join(''); if(rk.includes(cur)) r.value=cur; }
 function renderReportes(){ if(typeof Chart==='undefined'){ setTimeout(renderReportes,120); return; } refreshRepMonths(); const key=$('#repMonth').value||monthKey(todayStr()); const md=monthData(key); $('#rIn').textContent=fmt(md.inSum); $('#rOut').textContent=fmt(md.outSum); const b=md.inSum-md.outSum; const rb=$('#rBal'); rb.textContent=fmt(b); rb.style.color=b>0?'var(--in)':b<0?'var(--out)':'var(--ink)'; const tc=themeColors(); Chart.defaults.color=tc.muted; Chart.defaults.font.family="'Inter',sans-serif"; Object.values(window._charts).forEach(c=>{ try{c.destroy();}catch(e){} });
-  const keys=[...new Set(state.mov.map(m=>monthKey(m.fecha)))].sort(); const insM=keys.map(k=>state.mov.filter(m=>monthKey(m.fecha)===k&&m.tipo==='ingreso').reduce((a,m)=>a+m.cents,0)/100); const outM=keys.map(k=>state.mov.filter(m=>monthKey(m.fecha)===k&&m.tipo==='egreso').reduce((a,m)=>a+m.cents,0)/100);
-  window._charts.bars=new Chart($('#chartBars'),{type:'bar',data:{labels:keys.map(monthLabel),datasets:[{label:'Ingresos',data:insM,backgroundColor:tc.in,borderRadius:6},{label:'Egresos',data:outM,backgroundColor:tc.out,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:c=>c.dataset.label+': '+mxn.format(c.parsed.y)}}},scales:{x:{grid:{display:false}},y:{grid:{color:tc.line},ticks:{callback:v=>'$'+v.toLocaleString('es-MX')}}}}});
+  const buckets={}; state.mov.forEach(m=>{ const b=periodBucket(m.fecha,repPeriodo); if(!buckets[b.k]) buckets[b.k]={label:b.label,ord:b.ord,in:0,out:0}; if(m.tipo==='ingreso') buckets[b.k].in+=m.cents; else buckets[b.k].out+=m.cents; });
+  const bk=Object.values(buckets).sort((a,b)=>a.ord<b.ord?-1:1); const insM=bk.map(x=>x.in/100); const outM=bk.map(x=>x.out/100);
+  window._charts.bars=new Chart($('#chartBars'),{type:'bar',data:{labels:bk.map(x=>x.label),datasets:[{label:'Ingresos',data:insM,backgroundColor:tc.in,borderRadius:6},{label:'Egresos',data:outM,backgroundColor:tc.out,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:c=>c.dataset.label+': '+mxn.format(c.parsed.y)}}},scales:{x:{grid:{display:false}},y:{grid:{color:tc.line},ticks:{callback:v=>'$'+v.toLocaleString('es-MX')}}}}});
   const cat=md.byCat[donutTipo]||{}; const ck=Object.keys(cat); const cv=ck.map(k=>cat[k]/100); $('#donutNote').textContent=ck.length?`${donutTipo==='egreso'?'Egresos':'Ingresos'} de ${monthLabel(key)}`:'Sin datos en el mes.';
   window._charts.donut=new Chart($('#chartDonut'),{type:'doughnut',data:{labels:ck.length?ck:['Sin datos'],datasets:[{data:ck.length?cv:[1],backgroundColor:ck.length?ck.map((_,i)=>CAT_PALETTE[i%CAT_PALETTE.length]):[tc.line],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'right'},tooltip:{enabled:ck.length>0,callbacks:{label:c=>c.label+': '+mxn.format(c.parsed)}}}}});
   const ordered=[...state.mov].sort((a,b)=>a.fecha<b.fecha?-1:a.fecha>b.fecha?1:0); let run=0; const pts=ordered.map(m=>{ run+=m.tipo==='ingreso'?m.cents:-m.cents; return {x:m.fecha,y:run/100}; });
@@ -1080,14 +1092,16 @@ function renderAgendaPagos(){
   const sel=$('#remAgendaMes'); if(!sel) return;
   // Opciones: ene 2026 … dic 2027
   if(!sel.options.length){ const opts=[]; for(let y=2026;y<=2027;y++) for(let m=1;m<=12;m++){ const k=`${y}-${pad(m)}`; if(k>=OP_START.slice(0,7)) opts.push(k); } sel.innerHTML=opts.map(k=>`<option value="${k}">${monthLabel(k)}</option>`).join(''); const cur=monthKey(todayStr()); sel.value=opts.includes(cur)?cur:opts[0]; }
-  const mk=sel.value||monthKey(todayStr());
-  const ag=$('#remAgenda'); const events=[]; state.rem.filter(r=>r.activo).forEach(r=>{ occurrencesInMonth(r,mk).filter(f=>f>=OP_START).forEach(f=>events.push({f,r})); }); events.sort((a,b)=>a.f<b.f?-1:1);
-  let totMes=0,pagMes=0; events.forEach(ev=>{ totMes+=remDisplayAmount(ev.r); if(state.paylog.some(p=>p.remId===ev.r.id&&p.fecha===ev.f)) pagMes+=remDisplayAmount(ev.r); });
-  $('#remAgendaResumen').innerHTML=`${monthLabel(mk)}: ${events.length} pago(s) · Total ${fmt(totMes)} · Pagado ${fmt(pagMes)} · Pendiente ${fmt(totMes-pagMes)}`;
-  ag.innerHTML = events.length? events.map(ev=>{ const r=ev.r; const hecho=state.paylog.some(p=>p.remId===r.id&&p.fecha===ev.f); const vencido=!hecho&&ev.f<todayStr(); const cls=hecho?'done':(vencido?'late':(ev.f===todayStr()?'next':'')); const estado=hecho?'<span class="pill ok">Pagado ✓</span>':(vencido?'<span class="pill late">Vencido</span>':(ev.f===todayStr()?'<span class="pill next">Hoy</span>':'<span class="pill due">Programado</span>')); return `<div class="ritem ${cls}"><div class="checkbox${hecho?' on':''}" title="Marcar pagado" data-toggleag="${r.id}|${ev.f}">${hecho?'✓':''}</div><div class="main"><div class="rname">${fmtDate(ev.f)} — ${r.nombre} ${estado}</div><div class="rmeta">${relDays(ev.f)} · ${r.forma||'—'}</div></div><div class="rmoney money">${fmt(remDisplayAmount(r))}</div></div>`; }).join('') : `<div class="empty"><div class="big">📅</div>Sin pagos programados en ${monthLabel(mk)}.</div>`;
+  const mk=sel.value||monthKey(todayStr()); const span=parseInt(($('#remAgendaSpan')||{}).value||'1')||1;
+  const meses=[]; for(let i=0;i<span;i++){ const [y,m]=mk.split('-').map(Number); const d=new Date(y,m-1+i,1); meses.push(toISO(d).slice(0,7)); }
+  const ag=$('#remAgenda'); const events=[]; meses.forEach(mm=>{ state.rem.filter(r=>r.activo).forEach(r=>{ occurrencesInMonth(r,mm).filter(f=>f>=OP_START).forEach(f=>events.push({f,r})); }); }); events.sort((a,b)=>a.f<b.f?-1:1);
+  let totE=0,pagE=0,totI=0,cobI=0; events.forEach(ev=>{ const ing=!esEgreso(ev.r); const hecho=state.paylog.some(p=>p.remId===ev.r.id&&p.fecha===ev.f); if(ing){ totI+=remDisplayAmount(ev.r); if(hecho) cobI+=remDisplayAmount(ev.r); } else { totE+=remDisplayAmount(ev.r); if(hecho) pagE+=remDisplayAmount(ev.r); } });
+  const periodoLbl = span===1? monthLabel(mk) : `${monthLabel(meses[0])} – ${monthLabel(meses[meses.length-1])}`;
+  $('#remAgendaResumen').innerHTML=`${periodoLbl}: ${events.length} evento(s) · Pagos ${fmt(totE)} (pagado ${fmt(pagE)}, falta ${fmt(totE-pagE)})${totI>0?` · Cobros ${fmt(totI)} (cobrado ${fmt(cobI)})`:''}`;
+  ag.innerHTML = events.length? events.map(ev=>{ const r=ev.r; const ing=!esEgreso(r); const hecho=state.paylog.some(p=>p.remId===r.id&&p.fecha===ev.f); const vencido=!hecho&&ev.f<todayStr(); const cls=hecho?'done':(vencido?'late':(ev.f===todayStr()?'next':'')); const estado=hecho?`<span class="pill ok">${ing?'Cobrado':'Pagado'} ✓</span>`:(vencido?'<span class="pill late">Vencido</span>':(ev.f===todayStr()?'<span class="pill next">Hoy</span>':'<span class="pill due">Programado</span>')); const flujoPill=ing?'<span class="pill in">Cobro</span>':'<span class="pill out">Pago</span>'; return `<div class="ritem ${cls}"><div class="checkbox${hecho?' on':''}" title="Marcar ${ing?'cobrado':'pagado'}" data-toggleag="${r.id}|${ev.f}">${hecho?'✓':''}</div><div class="main"><div class="rname">${fmtDate(ev.f)} — ${r.nombre} ${flujoPill} ${estado}</div><div class="rmeta">${relDays(ev.f)} · ${r.forma||'—'}${r.variable?' · monto variable':''}</div></div><div class="rmoney money">${fmt(remDisplayAmount(r))}</div></div>`; }).join('') : `<div class="empty"><div class="big">📅</div>Sin eventos en ${periodoLbl}.</div>`;
   ag.querySelectorAll('[data-toggleag]').forEach(b=>b.onclick=()=>{ const [rid,f]=b.dataset.toggleag.split('|'); const hecho=state.paylog.some(p=>p.remId===rid&&p.fecha===f); if(hecho) desmarcarPago(rid,f); else marcarPagado(rid,f); });
 }
-$('#remAgendaMes').addEventListener('change',renderAgendaPagos);
+$('#remAgendaMes').addEventListener('change',renderAgendaPagos); $('#remAgendaSpan').addEventListener('change',renderAgendaPagos);
 function lastPaid(r){ const ps=state.paylog.filter(p=>p.remId===r.id).sort((a,b)=>a.fecha<b.fecha?1:-1); return ps[0]||null; }
 function remStatus(r){ const lp=lastPaid(r); if(!lp) return {ok:false,lp:null}; const diff=(parseISO(todayStr())-parseISO(lp.fecha))/86400000; return {ok:diff<periodDays(r),lp}; }
 function populateMeses(){ $('#remMes').innerHTML=MONTHS.map((m,i)=>`<option value="${i+1}">${cap(m)}</option>`).join(''); }
@@ -1098,9 +1112,9 @@ $('#remFreq').addEventListener('change',showFreqGroups);
 $('#remPorDia').addEventListener('change',()=>{ $('#remMontoLbl').textContent=$('#remPorDia').checked?'Monto por día':'Monto'; updateSemResumen(); });
 $('#remMonto').addEventListener('input',updateSemResumen);
 $('#payerName').addEventListener('change',e=>{ state.payer=e.target.value.trim(); save(LS.payer,state.payer); $('#movResp').placeholder=state.payer||'Quién registra/realiza'; });
-function resetRemForm(){ remEditId=null; remWeekSel=new Set(); $('#remNombre').value=''; $('#remMonto').value=''; $('#remFreq').value='diario'; $('#remForma').value='Transferencia bancaria'; $('#remDiaMes').value='1'; $('#remQuiA').value='15'; $('#remQuiB').value='30'; $('#remDiaAnual').value='1'; $('#remNMeses').value='3'; $('#remDesde').value=todayStr(); $('#remPorDia').checked=false; $('#remActivo').checked=true; $('#remMes').value='1'; renderWeekChips(); showFreqGroups(); $('#remFormTitle').textContent='Agregar pago fijo'; $('#remSave').textContent='Agregar pago'; $('#remCancel').style.display='none'; }
+function resetRemForm(){ remEditId=null; remWeekSel=new Set(); $('#remNombre').value=''; $('#remMonto').value=''; $('#remFreq').value='diario'; $('#remForma').value='Transferencia bancaria'; $('#remFlujo').value='egreso'; $('#remVariable').checked=false; $('#remDiaMes').value='1'; $('#remQuiA').value='15'; $('#remQuiB').value='30'; $('#remDiaAnual').value='1'; $('#remNMeses').value='3'; $('#remDesde').value=todayStr(); $('#remPorDia').checked=false; $('#remActivo').checked=true; $('#remMes').value='1'; renderWeekChips(); showFreqGroups(); $('#remFormTitle').textContent='Agregar pago fijo'; $('#remSave').textContent='Agregar pago'; $('#remCancel').style.display='none'; }
 $('#remCancel').addEventListener('click',resetRemForm);
-$('#remSave').addEventListener('click',()=>{ const nombre=$('#remNombre').value.trim(); if(!nombre){ toast('Escribe el nombre del pago'); return; } const f=$('#remFreq').value; const monto=parseCentavos($('#remMonto').value); const r={id:remEditId||uid(),nombre,frecuencia:f,activo:$('#remActivo').checked,monto,forma:$('#remForma').value};
+$('#remSave').addEventListener('click',()=>{ const nombre=$('#remNombre').value.trim(); if(!nombre){ toast('Escribe el nombre del pago'); return; } const f=$('#remFreq').value; const monto=parseCentavos($('#remMonto').value); const r={id:remEditId||uid(),nombre,frecuencia:f,activo:$('#remActivo').checked,monto,forma:$('#remForma').value,flujo:$('#remFlujo').value,variable:$('#remVariable').checked};
   if(f==='semanal'){ r.diasSemana=[...remWeekSel]; if(!r.diasSemana.length){ toast('Marca al menos un día'); return; } r.porDia=$('#remPorDia').checked; if(r.porDia) r.montoPorDia=monto; }
   if(f==='mensual') r.diaMes=Math.min(31,Math.max(1,parseInt($('#remDiaMes').value)||1));
   if(f==='quincenal') r.diasMes=[parseInt($('#remQuiA').value)||15,parseInt($('#remQuiB').value)||30].map(x=>Math.min(31,Math.max(1,x)));
@@ -1108,7 +1122,7 @@ $('#remSave').addEventListener('click',()=>{ const nombre=$('#remNombre').value.
   if(f==='cada_n_meses'){ r.nMeses=Math.max(1,parseInt($('#remNMeses').value)||3); r.desde=$('#remDesde').value||todayStr(); }
   if(remEditId){ const i=state.rem.findIndex(x=>x.id===remEditId); if(i>=0) state.rem[i]=r; toast('Pago actualizado'); } else { state.rem.push(r); toast('Pago agregado'); }
   save(LS.rem,state.rem); resetRemForm(); renderPagos(); });
-function editRem(id){ const r=state.rem.find(x=>x.id===id); if(!r) return; remEditId=id; $('#remNombre').value=r.nombre; $('#remFreq').value=r.frecuencia; $('#remForma').value=r.forma||'Transferencia bancaria'; $('#remActivo').checked=!!r.activo; $('#remMonto').value=((r.frecuencia==='semanal'&&r.porDia?r.montoPorDia:r.monto)/100)||''; remWeekSel=new Set(r.diasSemana||[]); $('#remPorDia').checked=!!r.porDia; $('#remDiaMes').value=r.diaMes||1; $('#remQuiA').value=(r.diasMes||[15,30])[0]; $('#remQuiB').value=(r.diasMes||[15,30])[1]; $('#remMes').value=r.mes||1; $('#remDiaAnual').value=r.diaMes||1; $('#remNMeses').value=r.nMeses||3; $('#remDesde').value=r.desde||todayStr(); renderWeekChips(); showFreqGroups(); $('#remFormTitle').textContent='Editar pago'; $('#remSave').textContent='Guardar cambios'; $('#remCancel').style.display='inline-flex'; document.getElementById('pagosfijos').scrollIntoView({behavior:'smooth',block:'start'}); }
+function editRem(id){ const r=state.rem.find(x=>x.id===id); if(!r) return; remEditId=id; $('#remNombre').value=r.nombre; $('#remFreq').value=r.frecuencia; $('#remForma').value=r.forma||'Transferencia bancaria'; $('#remFlujo').value=r.flujo||'egreso'; $('#remVariable').checked=!!r.variable; $('#remActivo').checked=!!r.activo; $('#remMonto').value=((r.frecuencia==='semanal'&&r.porDia?r.montoPorDia:r.monto)/100)||''; remWeekSel=new Set(r.diasSemana||[]); $('#remPorDia').checked=!!r.porDia; $('#remDiaMes').value=r.diaMes||1; $('#remQuiA').value=(r.diasMes||[15,30])[0]; $('#remQuiB').value=(r.diasMes||[15,30])[1]; $('#remMes').value=r.mes||1; $('#remDiaAnual').value=r.diaMes||1; $('#remNMeses').value=r.nMeses||3; $('#remDesde').value=r.desde||todayStr(); renderWeekChips(); showFreqGroups(); $('#remFormTitle').textContent='Editar pago'; $('#remSave').textContent='Guardar cambios'; $('#remCancel').style.display='inline-flex'; document.getElementById('pagosfijos').scrollIntoView({behavior:'smooth',block:'start'}); }
 function delRem(id){ if(!confirm('¿Eliminar este pago fijo?')) return; state.rem=state.rem.filter(x=>x.id!==id); save(LS.rem,state.rem); renderPagos(); }
 function toggleRemActivo(id){ const r=state.rem.find(x=>x.id===id); if(!r) return; r.activo=!r.activo; save(LS.rem,state.rem); renderPagos(); }
 function remFreqCorto(r){ return {diario:'Diario',semanal:'Semanal',quincenal:'Quincenal',mensual:'Mensual',anual:'Anual',cada_n_meses:'Cada '+(r.nMeses||3)+' meses'}[r.frecuencia]||''; }
@@ -1116,17 +1130,22 @@ function remFreqCorto(r){ return {diario:'Diario',semanal:'Semanal',quincenal:'Q
 function semanasPorPeriodo(r){ switch(r.frecuencia){ case 'semanal':return 1; case 'quincenal':return 2; case 'mensual':return 4; case 'anual':return 48; case 'diario':return 1/7; case 'cada_n_meses':return (r.nMeses||3)*4; } return 4; }
 function reservaSemanal(r){ return Math.round(remDisplayAmount(r)/semanasPorPeriodo(r)); }
 function baseSemanas(r){ switch(r.frecuencia){ case 'semanal':return 'cada semana'; case 'quincenal':return '÷ 2 semanas'; case 'mensual':return '÷ 4 semanas'; case 'anual':return '÷ 48 semanas'; case 'diario':return '× 7 días'; case 'cada_n_meses':return '÷ '+((r.nMeses||3)*4)+' semanas'; } return '÷ 4 semanas'; }
-function marcarPagado(id,fechaISO){ const r=state.rem.find(x=>x.id===id); if(!r) return; let quien=state.payer; if(!quien){ quien=(prompt('¿Quién realizó el pago?')||'').trim(); if(quien){ state.payer=quien; save(LS.payer,quien); $('#payerName').value=quien; } } const fecha=fechaISO||todayStr(); const monto=remDisplayAmount(r); let movId=''; if(monto>0) movId=addMov('egreso',monto,'Pagos fijos',fecha,'Pago: '+r.nombre+(quien?(' — '+quien):''),quien||'','Fijo',remFreqCorto(r)); state.paylog.push({id:uid(),remId:r.id,remNombre:r.nombre,fecha,quien:quien||'—',monto,movId}); save(LS.paylog,state.paylog); renderPagos(); toast('Pago registrado'+(monto>0?' y sumado a egresos':'')); }
+function esEgreso(r){ return (r.flujo||'egreso')!=='ingreso'; }
+function marcarPagado(id,fechaISO){ const r=state.rem.find(x=>x.id===id); if(!r) return; const ingreso=!esEgreso(r); let quien=state.payer; if(!quien){ quien=(prompt(ingreso?'¿Quién entregó la cuenta?':'¿Quién realizó el pago?')||'').trim(); if(quien){ state.payer=quien; save(LS.payer,quien); $('#payerName').value=quien; } }
+  const fecha=fechaISO||todayStr(); let monto=remDisplayAmount(r);
+  if(r.variable){ const v=prompt(`Monto de este ${ingreso?'cobro':'pago'} (${r.nombre}):`,(monto/100).toString()); if(v===null) return; monto=parseCentavos(v); }
+  let movId=''; if(monto>0) movId=addMov(ingreso?'ingreso':'egreso',monto,ingreso?'Recibo de cuenta':'Pagos fijos',fecha,(ingreso?'Cobro: ':'Pago: ')+r.nombre+(quien?(' — '+quien):''),quien||'','Fijo',remFreqCorto(r));
+  state.paylog.push({id:uid(),remId:r.id,remNombre:r.nombre,fecha,quien:quien||'—',monto,movId}); save(LS.paylog,state.paylog); renderPagos(); toast((ingreso?'Cobro':'Pago')+' registrado'+(monto>0?(ingreso?' y sumado a ingresos':' y sumado a egresos'):'')); }
 function desmarcarPago(remId,fechaISO){ const idx=state.paylog.findIndex(p=>p.remId===remId&&p.fecha===fechaISO); if(idx<0) return; const p=state.paylog[idx]; if(p.movId){ state.mov=state.mov.filter(m=>m.id!==p.movId); save(LS.mov,state.mov); } state.paylog.splice(idx,1); save(LS.paylog,state.paylog); renderPagos(); toast('Pago desmarcado'); }
 $('#paylogClear').addEventListener('click',()=>{ if(!state.paylog.length) return; if(!confirm('¿Borrar historial de pagos? (No afecta movimientos)')) return; state.paylog=[]; save(LS.paylog,state.paylog); renderPagos(); });
 $('#pagosPdf').addEventListener('click',()=>{ if(!state.rem.length){ toast('No hay pagos'); return; } let anual=0; state.rem.forEach(r=>anual+=remAnnualCost(r)); const body=state.rem.map(r=>[r.nombre,freqLabel(r),r.forma||'—',r.activo?'Activo':'Inactivo',fmt(remDisplayAmount(r)),nextDue(r)]); const sum=`Reservar — Diario: ${fmt(Math.round(anual/365))}  Semanal: ${fmt(Math.round(anual/52))}  Quincenal: ${fmt(Math.round(anual/24))}  Mensual: ${fmt(Math.round(anual/12))}  Anual: ${fmt(anual)}`; exportTablePDF('Pagos fijos','Pagos recurrentes de la unidad',['Pago','Frecuencia','Forma','Estado','Monto','Próximo'],body,{4:{halign:'right',fontStyle:'bold'}},sum); });
-function renderPagos(){ $('#payerName').value=state.payer||''; let anual=0; state.rem.forEach(r=>anual+=remAnnualCost(r)); $('#nDia').textContent=fmt(Math.round(anual/365)); $('#nSem').textContent=fmt(Math.round(anual/52)); $('#nQui').textContent=fmt(Math.round(anual/24)); $('#nMes').textContent=fmt(Math.round(anual/12)); $('#nAnu').textContent=fmt(anual); const act=state.rem.filter(r=>r.activo).length; $('#nResumen').innerHTML=`${act} pago${act!==1?'s':''} activo${act!==1?'s':''} de ${state.rem.length}. Esto es lo que el dueño paga para operar en la línea. <br>💡 El operador aporta aprox. <strong>$1,100/día</strong> (variable por temporada escolar o días festivos); regístralo como <strong>ingreso</strong> en Movimientos.`;
+function renderPagos(){ $('#payerName').value=state.payer||''; let anual=0; state.rem.forEach(r=>{ if(esEgreso(r)) anual+=remAnnualCost(r); }); $('#nDia').textContent=fmt(Math.round(anual/365)); $('#nSem').textContent=fmt(Math.round(anual/52)); $('#nQui').textContent=fmt(Math.round(anual/24)); $('#nMes').textContent=fmt(Math.round(anual/12)); $('#nAnu').textContent=fmt(anual); const actPagos=state.rem.filter(r=>r.activo&&esEgreso(r)).length; let anualIng=0; state.rem.forEach(r=>{ if(r.activo&&!esEgreso(r)) anualIng+=remAnnualCost(r); }); $('#nResumen').innerHTML=`${actPagos} pago(s) de egreso que el dueño hace para operar en la línea (solo estos cuentan en los totales de arriba).${anualIng>0?` <br>💡 Cobros esperados (recibo de cuenta del operador): ~<strong>${fmt(Math.round(anualIng/52))}/semana</strong>, variable según días trabajados; se registran como <strong>ingreso</strong>.`:''}`;
   // Agenda mensual (2026–2027) con checklist
   renderAgendaPagos();
   // Desglose de ahorro semanal GARANTIZADO por pago (nunca quedar corto)
-  const resWrap=$('#remReserva'); if(resWrap){ const act=state.rem.filter(r=>r.activo); const totalSem=act.reduce((a,r)=>a+reservaSemanal(r),0); resWrap.innerHTML = act.length? `<div class="table-wrap"><table><thead><tr><th>Pago</th><th>Frecuencia</th><th style="text-align:right">Monto</th><th>Cálculo</th><th style="text-align:right">Apartar por semana</th></tr></thead><tbody>${act.map(r=>`<tr><td>${r.nombre}</td><td><span class="pill cat">${freqLabel(r)}</span></td><td class="amt">${fmt(remDisplayAmount(r))}</td><td class="inline-note">${baseSemanas(r)}</td><td class="amt" style="color:var(--brand)">${fmt(reservaSemanal(r))}</td></tr>`).join('')}<tr><td style="font-weight:700" colspan="4">Total a apartar cada semana (garantizado)</td><td class="amt" style="color:var(--brand);font-weight:700">${fmt(totalSem)}</td></tr></tbody></table></div><div class="hint">Método garantizado: la quincena se divide entre 2 semanas y el mes entre 4 semanas (los viernes seguros), así siempre tienes el dinero el día del pago. En meses con 5 viernes acumulas un pequeño excedente.</div>` : '<div class="inline-note">Sin pagos activos.</div>'; }
+  const resWrap=$('#remReserva'); if(resWrap){ const act=state.rem.filter(r=>r.activo&&esEgreso(r)); const totalSem=act.reduce((a,r)=>a+reservaSemanal(r),0); resWrap.innerHTML = act.length? `<div class="table-wrap"><table><thead><tr><th>Pago</th><th>Frecuencia</th><th style="text-align:right">Monto</th><th>Cálculo</th><th style="text-align:right">Apartar por semana</th></tr></thead><tbody>${act.map(r=>`<tr><td>${r.nombre}</td><td><span class="pill cat">${freqLabel(r)}</span></td><td class="amt">${fmt(remDisplayAmount(r))}</td><td class="inline-note">${baseSemanas(r)}</td><td class="amt" style="color:var(--brand)">${fmt(reservaSemanal(r))}</td></tr>`).join('')}<tr><td style="font-weight:700" colspan="4">Total a apartar cada semana (garantizado)</td><td class="amt" style="color:var(--brand);font-weight:700">${fmt(totalSem)}</td></tr></tbody></table></div><div class="hint">Método garantizado: la quincena se divide entre 2 semanas y el mes entre 4 semanas (los viernes seguros), así siempre tienes el dinero el día del pago. En meses con 5 viernes acumulas un pequeño excedente.</div>` : '<div class="inline-note">Sin pagos activos.</div>'; }
   const list=$('#remList'); const sorted=[...state.rem].sort((a,b)=>{ if(a.activo!==b.activo) return a.activo?-1:1; return nextDue(a)<nextDue(b)?-1:1; });
-  list.innerHTML=sorted.map(r=>{ const st=remStatus(r); const nd=nextDue(r); const monto=remDisplayAmount(r); const estado=!r.activo?'<span class="pill cat">Inactivo</span>':(st.ok?'<span class="pill ok">Al día</span>':'<span class="pill due">Pendiente</span>'); const lpTxt=st.lp?`Último: ${st.lp.fecha} · ${st.lp.quien}`:'Sin pagos'; return `<div class="ritem${r.activo?'':' done'}"><div class="checkbox" title="Activar/desactivar" data-toggle="${r.id}">${r.activo?'●':''}</div><div class="main"><div class="rname">${r.nombre} ${estado}</div><div class="rmeta">${freqLabel(r)} · ${r.forma||'—'} · Próximo: <strong>${nd}</strong> (${relDays(nd)}) · ${lpTxt}</div></div><div class="rmoney money">${monto>0?fmt(monto):'—'}</div><div class="ract">${r.activo?`<button class="btn primary sm" data-pay="${r.id}">✓ Pagué</button>`:''}<button class="edit" data-edit="${r.id}">✏️</button><button class="del" data-del="${r.id}">🗑</button></div></div>`; }).join('')||`<div class="empty"><div class="big">🔔</div>No hay pagos. Agrega uno arriba.</div>`;
+  list.innerHTML=sorted.map(r=>{ const ingreso=!esEgreso(r); const st=remStatus(r); const nd=nextDue(r); const monto=remDisplayAmount(r); const flujoPill=ingreso?'<span class="pill in">Cobro</span>':'<span class="pill out">Pago</span>'; const estado=!r.activo?'<span class="pill cat">Inactivo</span>':(st.ok?'<span class="pill ok">Al día</span>':'<span class="pill due">Pendiente</span>'); const lpTxt=st.lp?`Último: ${st.lp.fecha} · ${st.lp.quien}`:'Sin registros'; return `<div class="ritem${r.activo?'':' done'}"><div class="checkbox" title="Activar/desactivar" data-toggle="${r.id}">${r.activo?'●':''}</div><div class="main"><div class="rname">${r.nombre} ${flujoPill} ${estado}${r.variable?' <span class="pill cat">variable</span>':''}</div><div class="rmeta">${freqLabel(r)} · ${r.forma||'—'} · Próximo: <strong>${nd}</strong> (${relDays(nd)}) · ${lpTxt}</div></div><div class="rmoney money">${monto>0?fmt(monto):'—'}</div><div class="ract">${r.activo?`<button class="btn primary sm" data-pay="${r.id}">${ingreso?'✓ Cobré':'✓ Pagué'}</button>`:''}<button class="edit" data-edit="${r.id}">✏️</button><button class="del" data-del="${r.id}">🗑</button></div></div>`; }).join('')||`<div class="empty"><div class="big">🔔</div>No hay pagos. Agrega uno arriba.</div>`;
   list.querySelectorAll('[data-pay]').forEach(b=>b.onclick=()=>marcarPagado(b.dataset.pay)); list.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editRem(b.dataset.edit)); list.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>delRem(b.dataset.del)); list.querySelectorAll('[data-toggle]').forEach(b=>b.onclick=()=>toggleRemActivo(b.dataset.toggle));
   const pl=$('#paylogTable'); const ps=[...state.paylog].sort((a,b)=>a.fecha<b.fecha?1:-1); if(ps.length===0) pl.innerHTML=`<div class="empty"><div class="big">🧾</div>Aún no registras pagos realizados.</div>`; else { pl.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Pago</th><th>Quién</th><th style="text-align:right">Monto</th><th></th></tr></thead><tbody>${ps.map(p=>`<tr><td>${p.fecha}</td><td>${p.remNombre}</td><td>${p.quien}</td><td class="amt">${p.monto>0?fmt(p.monto):'—'}</td><td style="width:40px"><button class="del" data-pl="${p.id}">🗑</button></td></tr>`).join('')}</tbody></table></div>`; pl.querySelectorAll('[data-pl]').forEach(b=>b.onclick=()=>{ state.paylog=state.paylog.filter(x=>x.id!==b.dataset.pl); save(LS.paylog,state.paylog); renderPagos(); }); } }
 
