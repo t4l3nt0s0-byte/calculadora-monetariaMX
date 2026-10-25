@@ -679,10 +679,13 @@
         <div><h2 class="card-title" style="margin:0">Responsabilidades</h2><p class="card-note tight" style="margin-top:3px">Quién hace cada actividad, con qué frecuencia y dónde se registra.</p></div>
         <div class="actions"><button class="btn primary sm" id="respPdf">⬇ PDF</button></div>
       </div>
+      <div class="sectionlabel" style="margin-top:0">Nombres disponibles <span class="inline-note">(agrégalos aquí y luego selecciónalos)</span></div>
+      <div class="chips" id="respNameChips" style="margin-bottom:10px"></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px"><input id="respNewName" class="input" placeholder="Nuevo nombre" style="max-width:240px"/><button class="btn ghost sm" id="respNameAdd">＋ Agregar nombre</button></div>
       <div class="form-grid">
         <div class="full"><label class="fld" for="respAct">Actividad</label><input id="respAct" class="input" placeholder="Ej. Registrar ingresos del día"/></div>
-        <div><label class="fld" for="respPrin">Responsable principal</label><input id="respPrin" class="input" placeholder="Ej. Kevin"/></div>
-        <div><label class="fld" for="respApoyo">Apoya / participa</label><input id="respApoyo" class="input" placeholder="Ej. Operador"/></div>
+        <div><label class="fld" for="respPrin">Responsable principal</label><select id="respPrin" class="input"></select></div>
+        <div><label class="fld" for="respApoyo">Apoya / participa</label><select id="respApoyo" class="input"></select></div>
         <div><label class="fld" for="respFreq">Frecuencia</label>
           <select id="respFreq" class="input"><option>Diario</option><option>Diario/Semanal</option><option>Semanal</option><option>Por kilometraje</option><option>Cuando ocurre</option><option>Quincenal</option><option>Mensual</option><option>Anual</option><option>Según se requiera</option></select></div>
         <div><label class="fld" for="respCuando">Cuándo ocurre</label><input id="respCuando" class="input" placeholder="Ej. Al cierre del día / 18 de cada mes"/></div>
@@ -837,7 +840,7 @@ function closestBelow(target,values){ if(!values.length) return 0; const g=value
 /* ===== Persistencia ===== */
 const LS={ mov:'cajaMXN_mov_v1',cats:'cajaMXN_cats_v1',den:'cajaMXN_den_v1',theme:'cajaMXN_theme_v1',
   rem:'cajaMXN_pf_v4',paylog:'cajaMXN_paylog_v3',comp:'cajaMXN_comp_v2',ct:'cajaMXN_ct_v3',payer:'cajaMXN_payer_v1',
-  resp:'cajaMXN_resp_v1',oper:'cajaMXN_oper_v1',serv:'cajaMXN_serv_v3',inv:'cajaMXN_inv_v1',fondo:'cajaMXN_fondo_v1',compCats:'cajaMXN_compcats_v1',operCats:'cajaMXN_opercats_v1',prest:'cajaMXN_prest_v1',ahorro:'cajaMXN_ahorro_v1' };
+  resp:'cajaMXN_resp_v1',oper:'cajaMXN_oper_v1',serv:'cajaMXN_serv_v4',inv:'cajaMXN_inv_v1',fondo:'cajaMXN_fondo_v1',compCats:'cajaMXN_compcats_v1',operCats:'cajaMXN_opercats_v1',prest:'cajaMXN_prest_v1',ahorro:'cajaMXN_ahorro_v1',respNames:'cajaMXN_respnames_v1' };
 function load(k,f){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f; }catch(e){ return f; } }
 function save(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
@@ -878,16 +881,18 @@ function seedResp(){ return [
   {id:uid(),actividad:'Pagar cuota a la línea / tarjeta',principal:'Kevin',apoyo:'—',frecuencia:'Semanal',cuando:'Jueves',apartado:'Pagos fijos'},
   {id:uid(),actividad:'Servicio del vehículo',principal:'Kevin',apoyo:'Mecánico',frecuencia:'Cuando ocurre',cuando:'Cada 3 meses',apartado:'Servicios'},
 ]; }
-const SERV_BASE='2026-10-20'; // inicio de operación (unidad nueva, km 0)
+const SERV_BASE='2026-10-20'; // inicio de operación (unidad nueva, km 0) = referencia cero
+const OP_START='2026-10-20';  // nada se programa antes de esta fecha
 const SERV_FIN='2027-12-31';  // programa cubre 2026 y 2027
-function seedServ(){ const cats=['Servicio menor (aceite y filtro)','Frenos','Servicio menor (aceite y filtro)','Servicio mayor (afinación)']; const out=[]; let d=SERV_BASE,i=0; while(d<=SERV_FIN){ out.push({id:uid(),fechaProg:d,categoria:(i===0?'Revisión general':cats[(i-1)%cats.length]),estatus:'pendiente',costo:0,fechaReal:'',donde:'',quien:'',notas:(i===0?'Inicio de operación / entrega (km 0)':'')}); d=addMonthsISO(d,3); i++; } return out; }
+// Servicios: se cuentan CADA 3 MESES a partir del 20/oct/2026 (el 20/oct es el cero, no es servicio).
+function seedServ(){ const cats=['Servicio menor (aceite y filtro)','Frenos','Servicio menor (aceite y filtro)','Servicio mayor (afinación)']; const out=[]; let d=addMonthsISO(SERV_BASE,3),i=0; while(d<=SERV_FIN){ out.push({id:uid(),fechaProg:d,categoria:cats[i%cats.length],estatus:'pendiente',costo:0,fechaReal:'',donde:'',quien:'',notas:''}); d=addMonthsISO(d,3); i++; } return out; }
 
 let state={
   mov:load(LS.mov,[]), cats:load(LS.cats,structuredClone(DEFAULT_CATS)), den:load(LS.den,DENOMS.map(d=>d.v)), tipoModo:'ambos',
   rem:load(LS.rem,null), paylog:load(LS.paylog,[]), comp:load(LS.comp,null), ct:load(LS.ct,null), payer:load(LS.payer,''),
   resp:load(LS.resp,null), oper:load(LS.oper,[]), serv:load(LS.serv,null),
   inv:load(LS.inv,{valor:0,inicio:'2026-10-20',conceptos:[]}), fondo:load(LS.fondo,{min:0}), compCats:load(LS.compCats,null), operCats:load(LS.operCats,null),
-  prest:load(LS.prest,[]), ahorro:load(LS.ahorro,{plan:{monto:0,frecuencia:'semanal'},deposits:[]}),
+  prest:load(LS.prest,[]), ahorro:load(LS.ahorro,{plan:{monto:0,frecuencia:'semanal'},deposits:[]}), respNames:load(LS.respNames,null),
 };
 let movTipo='ingreso',countTipo='ingreso',donutTipo='egreso',remEditId=null,remWeekSel=new Set(),movEditId=null,respEditId=null,ctEditId=null,compEditId=null;
 
@@ -1074,9 +1079,9 @@ function occurrencesInMonth(r,mk){ const [y,m]=mk.split('-').map(Number); const 
 function renderAgendaPagos(){
   const sel=$('#remAgendaMes'); if(!sel) return;
   // Opciones: ene 2026 … dic 2027
-  if(!sel.options.length){ const opts=[]; for(let y=2026;y<=2027;y++) for(let m=1;m<=12;m++) opts.push(`${y}-${pad(m)}`); sel.innerHTML=opts.map(k=>`<option value="${k}">${monthLabel(k)}</option>`).join(''); sel.value=monthKey(todayStr()); }
+  if(!sel.options.length){ const opts=[]; for(let y=2026;y<=2027;y++) for(let m=1;m<=12;m++){ const k=`${y}-${pad(m)}`; if(k>=OP_START.slice(0,7)) opts.push(k); } sel.innerHTML=opts.map(k=>`<option value="${k}">${monthLabel(k)}</option>`).join(''); const cur=monthKey(todayStr()); sel.value=opts.includes(cur)?cur:opts[0]; }
   const mk=sel.value||monthKey(todayStr());
-  const ag=$('#remAgenda'); const events=[]; state.rem.filter(r=>r.activo).forEach(r=>{ occurrencesInMonth(r,mk).forEach(f=>events.push({f,r})); }); events.sort((a,b)=>a.f<b.f?-1:1);
+  const ag=$('#remAgenda'); const events=[]; state.rem.filter(r=>r.activo).forEach(r=>{ occurrencesInMonth(r,mk).filter(f=>f>=OP_START).forEach(f=>events.push({f,r})); }); events.sort((a,b)=>a.f<b.f?-1:1);
   let totMes=0,pagMes=0; events.forEach(ev=>{ totMes+=remDisplayAmount(ev.r); if(state.paylog.some(p=>p.remId===ev.r.id&&p.fecha===ev.f)) pagMes+=remDisplayAmount(ev.r); });
   $('#remAgendaResumen').innerHTML=`${monthLabel(mk)}: ${events.length} pago(s) · Total ${fmt(totMes)} · Pagado ${fmt(pagMes)} · Pendiente ${fmt(totMes-pagMes)}`;
   ag.innerHTML = events.length? events.map(ev=>{ const r=ev.r; const hecho=state.paylog.some(p=>p.remId===r.id&&p.fecha===ev.f); const vencido=!hecho&&ev.f<todayStr(); const cls=hecho?'done':(vencido?'late':(ev.f===todayStr()?'next':'')); const estado=hecho?'<span class="pill ok">Pagado ✓</span>':(vencido?'<span class="pill late">Vencido</span>':(ev.f===todayStr()?'<span class="pill next">Hoy</span>':'<span class="pill due">Programado</span>')); return `<div class="ritem ${cls}"><div class="checkbox${hecho?' on':''}" title="Marcar pagado" data-toggleag="${r.id}|${ev.f}">${hecho?'✓':''}</div><div class="main"><div class="rname">${fmtDate(ev.f)} — ${r.nombre} ${estado}</div><div class="rmeta">${relDays(ev.f)} · ${r.forma||'—'}</div></div><div class="rmoney money">${fmt(remDisplayAmount(r))}</div></div>`; }).join('') : `<div class="empty"><div class="big">📅</div>Sin pagos programados en ${monthLabel(mk)}.</div>`;
@@ -1213,14 +1218,19 @@ function renderPrestamos(){
 }
 
 /* ============ RESPONSABILIDADES ============ */
-function resetRespForm(){ respEditId=null; $('#respAct').value=''; $('#respPrin').value=''; $('#respApoyo').value=''; $('#respCuando').value=''; $('#respAdd').textContent='＋ Agregar'; $('#respCancel').style.display='none'; }
+function refreshRespNameSelects(){ const opts=state.respNames.map(n=>`<option>${n}</option>`).join(''); const p=$('#respPrin'),a=$('#respApoyo'); const pc=p.value,ac=a.value; p.innerHTML=opts; a.innerHTML=`<option>—</option>`+opts; if(state.respNames.includes(pc)) p.value=pc; if(ac==='—'||state.respNames.includes(ac)) a.value=ac; }
+function renderRespNameChips(){ const w=$('#respNameChips'); w.innerHTML=state.respNames.map(n=>`<span class="catchip"><span class="cdot" style="background:${CAT_PALETTE[state.respNames.indexOf(n)%CAT_PALETTE.length]}"></span>${n}<button class="cx" data-ren="${n}" title="Renombrar">✏️</button><button class="cx" data-delc="${n}" title="Eliminar">✕</button></span>`).join('')||'<span class="inline-note">Sin nombres.</span>';
+  w.querySelectorAll('[data-ren]').forEach(b=>b.onclick=()=>{ const old=b.dataset.ren; const n=(prompt('Nuevo nombre:',old)||'').trim(); if(!n||n===old) return; if(state.respNames.includes(n)){ toast('Ya existe'); return; } state.respNames=state.respNames.map(x=>x===old?n:x); state.resp.forEach(r=>{ if(r.principal===old) r.principal=n; if(r.apoyo===old) r.apoyo=n; }); save(LS.respNames,state.respNames); save(LS.resp,state.resp); renderResp(); toast('Nombre renombrado'); });
+  w.querySelectorAll('[data-delc]').forEach(b=>b.onclick=()=>{ const n=b.dataset.delc; if(state.respNames.length<=1){ toast('Debe quedar al menos uno'); return; } state.respNames=state.respNames.filter(x=>x!==n); save(LS.respNames,state.respNames); renderResp(); toast('Nombre eliminado'); }); }
+$('#respNameAdd').addEventListener('click',()=>{ const n=$('#respNewName').value.trim(); if(!n){ toast('Escribe un nombre'); return; } if(state.respNames.includes(n)){ toast('Ya existe'); return; } state.respNames.push(n); save(LS.respNames,state.respNames); $('#respNewName').value=''; renderRespNameChips(); refreshRespNameSelects(); $('#respPrin').value=n; toast('Nombre agregado'); });
+function resetRespForm(){ respEditId=null; $('#respAct').value=''; refreshRespNameSelects(); $('#respApoyo').value='—'; $('#respCuando').value=''; $('#respAdd').textContent='＋ Agregar'; $('#respCancel').style.display='none'; }
 $('#respCancel').addEventListener('click',resetRespForm);
-$('#respAdd').addEventListener('click',()=>{ const actividad=$('#respAct').value.trim(); if(!actividad){ toast('Escribe la actividad'); return; } const rec={id:respEditId||uid(),actividad,principal:$('#respPrin').value.trim()||'—',apoyo:$('#respApoyo').value.trim()||'—',frecuencia:$('#respFreq').value,cuando:$('#respCuando').value.trim()||'—',apartado:$('#respApartado').value}; if(respEditId){ const i=state.resp.findIndex(x=>x.id===respEditId); if(i>=0) state.resp[i]=rec; toast('Responsabilidad actualizada'); } else { state.resp.push(rec); toast('Responsabilidad agregada'); } save(LS.resp,state.resp); resetRespForm(); renderResp(); });
-function editResp(id){ const r=state.resp.find(x=>x.id===id); if(!r) return; respEditId=id; $('#respAct').value=r.actividad; $('#respPrin').value=r.principal; $('#respApoyo').value=r.apoyo; $('#respFreq').value=r.frecuencia; $('#respCuando').value=r.cuando; $('#respApartado').value=r.apartado; $('#respAdd').textContent='Guardar cambios'; $('#respCancel').style.display='inline-flex'; document.getElementById('responsabilidades').scrollIntoView({behavior:'smooth',block:'start'}); }
+$('#respAdd').addEventListener('click',()=>{ const actividad=$('#respAct').value.trim(); if(!actividad){ toast('Escribe la actividad'); return; } const rec={id:respEditId||uid(),actividad,principal:$('#respPrin').value||'—',apoyo:$('#respApoyo').value||'—',frecuencia:$('#respFreq').value,cuando:$('#respCuando').value.trim()||'—',apartado:$('#respApartado').value}; if(respEditId){ const i=state.resp.findIndex(x=>x.id===respEditId); if(i>=0) state.resp[i]=rec; toast('Responsabilidad actualizada'); } else { state.resp.push(rec); toast('Responsabilidad agregada'); } save(LS.resp,state.resp); resetRespForm(); renderResp(); });
+function editResp(id){ const r=state.resp.find(x=>x.id===id); if(!r) return; respEditId=id; if(r.principal&&!state.respNames.includes(r.principal)){ state.respNames.push(r.principal); save(LS.respNames,state.respNames); } if(r.apoyo&&r.apoyo!=='—'&&!state.respNames.includes(r.apoyo)){ state.respNames.push(r.apoyo); save(LS.respNames,state.respNames); } renderRespNameChips(); refreshRespNameSelects(); $('#respAct').value=r.actividad; $('#respPrin').value=r.principal; $('#respApoyo').value=r.apoyo||'—'; $('#respFreq').value=r.frecuencia; $('#respCuando').value=r.cuando; $('#respApartado').value=r.apartado; $('#respAdd').textContent='Guardar cambios'; $('#respCancel').style.display='inline-flex'; document.getElementById('responsabilidades').scrollIntoView({behavior:'smooth',block:'start'}); }
 $('#respPdf').addEventListener('click',()=>{ if(!state.resp.length){ toast('Sin responsabilidades'); return; } const body=state.resp.map(r=>[r.actividad,r.principal,r.apoyo,r.frecuencia,r.cuando,r.apartado]); exportTablePDF('Responsabilidades','Matriz de actividades de la operación',['Actividad','Responsable','Apoya','Frecuencia','Cuándo','Se registra en'],body,{}); });
 const RESP_FREQ_COLORS={'Diario':'#e5484d','Diario/Semanal':'#dd6b20','Semanal':'#e0a938','Por kilometraje':'#8e4a9e','Cuando ocurre':'#718096','Quincenal':'#2b6cb0','Mensual':'#0f6d63','Anual':'#2f855a','Según se requiera':'#319795'};
 function respFreqPill(f){ const c=RESP_FREQ_COLORS[f]||'#718096'; return `<span class="pill" style="background:${c}22;color:${c};border:1px solid ${c}66">${f}</span>`; }
-function renderResp(){ const cont=$('#respTable'); if(!state.resp.length){ cont.innerHTML=`<div class="empty"><div class="big">📋</div>Sin responsabilidades. Agrega una arriba.</div>`; return; }
+function renderResp(){ renderRespNameChips(); refreshRespNameSelects(); const cont=$('#respTable'); if(!state.resp.length){ cont.innerHTML=`<div class="empty"><div class="big">📋</div>Sin responsabilidades. Agrega una arriba.</div>`; return; }
   const leyenda=`<div class="legend" style="margin-bottom:12px">${Object.keys(RESP_FREQ_COLORS).map(f=>`<span><i style="background:${RESP_FREQ_COLORS[f]}"></i>${f}</span>`).join('')}</div>`;
   cont.innerHTML=leyenda+`<div class="table-wrap"><table><thead><tr><th>Actividad</th><th>Responsable</th><th>Apoya</th><th>Frecuencia</th><th>Cuándo</th><th>Se registra en</th><th></th></tr></thead><tbody>${state.resp.map(r=>`<tr><td style="white-space:normal;max-width:220px">${r.actividad}</td><td>${r.principal}</td><td>${r.apoyo}</td><td>${respFreqPill(r.frecuencia)}</td><td style="white-space:normal;max-width:160px;color:var(--muted)">${r.cuando}</td><td><span class="pill cat">${r.apartado}</span></td><td style="width:70px"><button class="edit" data-edit="${r.id}">✏️</button><button class="del" data-del="${r.id}">🗑</button></td></tr>`).join('')}</tbody></table></div>`; cont.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editResp(b.dataset.edit)); cont.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ if(!confirm('¿Eliminar?'))return; state.resp=state.resp.filter(x=>x.id!==b.dataset.del); save(LS.resp,state.resp); renderResp(); }); }
 
@@ -1295,6 +1305,7 @@ let ctMig=false; state.ct.forEach(c=>{ if(!c.tipo){ c.tipo=c.emg?'emergencia':'o
 // Migración: compras previas sin campos nuevos
 let cMig=false; state.comp.forEach(c=>{ if(c.prioridad===undefined){ c.prioridad='Media'; c.quien=c.quien||''; c.fecha=c.fecha||''; c.donde=c.donde||''; c.comprobante=c.comprobante||'Ninguno'; cMig=true; } if(!state.compCats.includes(c.categoria)){ state.compCats.push(c.categoria); cMig=true; } }); if(cMig){ save(LS.comp,state.comp); save(LS.compCats,state.compCats); }
 if(!state.resp){ state.resp=seedResp(); save(LS.resp,state.resp); }
+if(!state.respNames){ state.respNames=['Kevin','Operador','Contadora']; save(LS.respNames,state.respNames); }
 if(!state.serv){ state.serv=seedServ(); save(LS.serv,state.serv); }
 
 /* ===== INIT ===== */
