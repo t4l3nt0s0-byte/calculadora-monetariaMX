@@ -276,6 +276,7 @@
     <button class="tab" data-tab="operador"><span class="ic">👷</span> Operador</button>
     <button class="tab" data-tab="recuperacion"><span class="ic">📈</span> Recuperación</button>
     <button class="tab" data-tab="prestamos"><span class="ic">🤝</span> Préstamos / Ahorro</button>
+    <button class="tab" data-tab="vehiculo"><span class="ic">🚐</span> Vehículo</button>
     <button class="tab" data-tab="responsabilidades"><span class="ic">📋</span> Responsabilidades</button>
     <button class="tab" data-tab="compras"><span class="ic">🛒</span> Compras</button>
     <button class="tab" data-tab="contactos"><span class="ic">☎️</span> Contactos</button>
@@ -358,6 +359,19 @@
         </div>
       </div>
       <div id="fondoStatus" style="margin-top:14px"></div>
+    </div>
+
+    <div class="card pad" style="margin-bottom:var(--sp)">
+      <div class="head" style="margin:0">
+        <div><h2 class="card-title" style="margin:0">Caja chica para préstamos</h2><p class="card-note tight" style="margin-top:3px">Monto fijo que apartas de tus ingresos para prestar. Los préstamos salen de aquí y se registran como egreso.</p></div>
+        <div class="actions"><div class="money-input sm" style="min-width:140px"><span class="peso">$</span><input id="cajaAporte" class="money" inputmode="decimal" placeholder="0.00"/></div><button class="btn ghost sm" id="cajaAporteSave">Guardar monto</button><button class="btn primary sm" id="cajaAportar">＋ Aportar a caja</button></div>
+      </div>
+      <div class="kpis c3" style="margin-top:14px">
+        <div class="kpi"><div class="k">Aporte fijo</div><div class="v money" id="cajaFijoKpi">$0.00</div></div>
+        <div class="kpi brandv"><div class="k">Total aportado</div><div class="v money" id="cajaAportadoKpi">$0.00</div></div>
+        <div class="kpi in"><div class="k">Disponible para prestar</div><div class="v money" id="cajaDispKpi">$0.00</div></div>
+      </div>
+      <div class="hint" id="cajaHint"></div>
     </div>
 
     <div class="card pad" style="margin-bottom:var(--sp)">
@@ -633,7 +647,7 @@
 
     <div class="card pad" style="margin-bottom:var(--sp)">
       <h2 class="card-title">Prestar dinero</h2>
-      <p class="card-note">Si tienes excedente, registra a quién le prestas, por qué concepto y cuándo lo devuelve.</p>
+      <p class="card-note">Si tienes excedente, registra a quién le prestas, por qué concepto y cuándo lo devuelve. <strong id="prDisp"></strong></p>
       <div class="form-grid">
         <div><label class="fld" for="prPersona">¿A quién?</label><input id="prPersona" class="input" placeholder="Nombre"/></div>
         <div><label class="fld" for="prMonto">Monto</label><div class="money-input sm"><span class="peso">$</span><input id="prMonto" class="money" inputmode="decimal" placeholder="0.00"/></div></div>
@@ -671,6 +685,77 @@
         <div style="display:flex;align-items:flex-end"><button class="btn primary" id="ahDepAdd" style="width:100%">＋ Aportar</button></div>
       </div>
       <div id="ahDepTable" style="margin-top:14px"></div>
+    </div>
+  </section>
+
+  <!-- ===== VEHÍCULO ===== -->
+  <section class="panel" id="vehiculo">
+    <div class="card pad" style="margin-bottom:var(--sp)">
+      <h2 class="card-title">🚐 Nissan Urvan Panel (NV350) 2026 — ventanas amplias</h2>
+      <p class="card-note">Ficha técnica de referencia (catálogo Nissan). Confirma presión de llantas, aceite y torques con el manual del propietario o tu distribuidor antes de cualquier servicio.</p>
+      <div class="kpis c4">
+        <div class="kpi brandv"><div class="k">Motor</div><div class="v" style="font-size:16px">2.5 L · 142 hp</div></div>
+        <div class="kpi"><div class="k">Transmisión</div><div class="v" style="font-size:16px">Manual 5 vel</div></div>
+        <div class="kpi"><div class="k">Llantas</div><div class="v" style="font-size:16px">195/80 R15</div></div>
+        <div class="kpi"><div class="k">Tanque</div><div class="v" style="font-size:16px">65 L</div></div>
+      </div>
+    </div>
+
+    <div class="card pad" style="margin-bottom:var(--sp)">
+      <h2 class="card-title">Datos de mi unidad <span class="inline-note">(editable)</span></h2>
+      <div class="form-grid">
+        <div><label class="fld" for="vhPlacas">Placas</label><input id="vhPlacas" class="input" placeholder="Ej. ABC-12-34"/></div>
+        <div><label class="fld" for="vhVin">VIN / Serie</label><input id="vhVin" class="input" placeholder="17 caracteres"/></div>
+        <div><label class="fld" for="vhColor">Color</label><input id="vhColor" class="input" placeholder="Ej. Blanco"/></div>
+        <div><label class="fld" for="vhKm">Kilometraje actual</label><input id="vhKm" class="input" inputmode="numeric" placeholder="Ej. 1,250"/></div>
+        <div><label class="fld" for="vhAseg">Aseguradora</label><input id="vhAseg" class="input" placeholder="Ej. Qualitas"/></div>
+        <div><label class="fld" for="vhPoliza">Póliza</label><input id="vhPoliza" class="input" placeholder="N° de póliza"/></div>
+      </div>
+      <div class="field-actions"><button class="btn primary" id="vhSave" style="min-width:150px">Guardar datos</button></div>
+    </div>
+
+    <div class="card pad" style="margin-bottom:var(--sp)">
+      <h3 class="card-title">🛞 Llantas y presión</h3>
+      <div class="table-wrap"><table><tbody>
+        <tr><th style="width:45%">Medida de neumático</th><td>195/80 R15</td></tr>
+        <tr><th>Rin</th><td>Acero 15"</td></tr>
+        <tr><th>Monitoreo</th><td>Sistema TPMS (monitor de presión de llantas)</td></tr>
+        <tr><th>Presión recomendada</th><td>Consulta la <strong>etiqueta en el marco de la puerta del conductor</strong> (varía con la carga). En vans comerciales la trasera suele ser mayor que la delantera cuando va cargada — usa el valor de la etiqueta, no uno genérico.</td></tr>
+        <tr><th>Rotación / revisión</th><td>Revisar presión en frío cada semana; rotación según manual (aprox. cada 10,000 km).</td></tr>
+      </tbody></table></div>
+    </div>
+
+    <div class="card pad" style="margin-bottom:var(--sp)">
+      <h3 class="card-title">⚙️ Motor y desempeño</h3>
+      <div class="table-wrap"><table><tbody>
+        <tr><th style="width:45%">Motor</th><td>QR25, 4 cilindros en línea, gasolina</td></tr>
+        <tr><th>Cilindrada</th><td>2.5 L (2,488 cc aprox.)</td></tr>
+        <tr><th>Potencia</th><td>142 hp @ 5,600 rpm</td></tr>
+        <tr><th>Torque</th><td>157 lb·pie (≈ 213 N·m) @ 4,400 rpm</td></tr>
+        <tr><th>Relación de compresión</th><td>10:1</td></tr>
+        <tr><th>Transmisión</th><td>Manual de 5 velocidades · relación final 4.625</td></tr>
+        <tr><th>Dirección</th><td>Hidráulica</td></tr>
+        <tr><th>Frenos</th><td>Delanteros de disco · traseros de tambor</td></tr>
+        <tr><th>Suspensión delantera</th><td>Doble brazo con barra estabilizadora</td></tr>
+        <tr><th>Suspensión trasera</th><td>Eje rígido con muelles de hojas (resortes)</td></tr>
+        <tr><th>Aceite de motor</th><td>QR25: aprox. 4.2 L con filtro (verifica el manual; usa el grado SAE indicado por Nissan)</td></tr>
+      </tbody></table></div>
+    </div>
+
+    <div class="card pad" style="margin-bottom:var(--sp)">
+      <h3 class="card-title">📏 Dimensiones y capacidades</h3>
+      <div class="table-wrap"><table><tbody>
+        <tr><th style="width:45%">Largo total</th><td>5,230 mm</td></tr>
+        <tr><th>Ancho total (sin espejos)</th><td>1,880 mm</td></tr>
+        <tr><th>Altura total</th><td>2,285 mm</td></tr>
+        <tr><th>Distancia entre ejes</th><td>2,940 mm</td></tr>
+        <tr><th>Volumen de carga</th><td>9.2 m³</td></tr>
+        <tr><th>Área de carga (L × An × Al)</th><td>3,395 × 1,730 × 1,645 mm</td></tr>
+        <tr><th>Tanque de combustible</th><td>65 L</td></tr>
+        <tr><th>Capacidad de carga útil</th><td>≈ 1,344 – 1,351 kg (según versión)</td></tr>
+        <tr><th>Peso bruto vehicular (PBV)</th><td>3,200 kg</td></tr>
+      </tbody></table></div>
+      <div class="hint">Fuentes: catálogo oficial Nissan Urvan Panel y páginas de distribuidores. Las cifras pueden variar por versión y año; confírmalas en tu manual del propietario.</div>
     </div>
   </section>
 
@@ -842,7 +927,7 @@ function closestBelow(target,values){ if(!values.length) return 0; const g=value
 /* ===== Persistencia ===== */
 const LS={ mov:'cajaMXN_mov_v1',cats:'cajaMXN_cats_v1',den:'cajaMXN_den_v1',theme:'cajaMXN_theme_v1',
   rem:'cajaMXN_pf_v5',paylog:'cajaMXN_paylog_v3',comp:'cajaMXN_comp_v2',ct:'cajaMXN_ct_v3',payer:'cajaMXN_payer_v1',
-  resp:'cajaMXN_resp_v1',oper:'cajaMXN_oper_v1',serv:'cajaMXN_serv_v5',inv:'cajaMXN_inv_v1',fondo:'cajaMXN_fondo_v1',compCats:'cajaMXN_compcats_v1',operCats:'cajaMXN_opercats_v1',prest:'cajaMXN_prest_v1',ahorro:'cajaMXN_ahorro_v1',respNames:'cajaMXN_respnames_v1' };
+  resp:'cajaMXN_resp_v1',oper:'cajaMXN_oper_v1',serv:'cajaMXN_serv_v5',inv:'cajaMXN_inv_v1',fondo:'cajaMXN_fondo_v1',compCats:'cajaMXN_compcats_v1',operCats:'cajaMXN_opercats_v1',prest:'cajaMXN_prest_v1',ahorro:'cajaMXN_ahorro_v1',respNames:'cajaMXN_respnames_v1',caja:'cajaMXN_caja_v1',vehiculo:'cajaMXN_vehiculo_v1' };
 function load(k,f){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f; }catch(e){ return f; } }
 function save(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
@@ -896,6 +981,8 @@ let state={
   resp:load(LS.resp,null), oper:load(LS.oper,[]), serv:load(LS.serv,null),
   inv:load(LS.inv,{valor:0,inicio:'2026-10-20',conceptos:[]}), fondo:load(LS.fondo,{min:0}), compCats:load(LS.compCats,null), operCats:load(LS.operCats,null),
   prest:load(LS.prest,[]), ahorro:load(LS.ahorro,{plan:{monto:0,frecuencia:'semanal'},deposits:[]}), respNames:load(LS.respNames,null),
+  caja:load(LS.caja,{aporteFijo:0,aportado:0}),
+  vehiculo:load(LS.vehiculo,{placas:'',vin:'',poliza:'',aseguradora:'',color:'',km:''}),
 };
 let movTipo='ingreso',countTipo='ingreso',donutTipo='egreso',remEditId=null,remWeekSel=new Set(),movEditId=null,respEditId=null,ctEditId=null,compEditId=null;
 let semModo={in:'full',eg:'full'};
@@ -930,7 +1017,7 @@ $('#tabs').addEventListener('click',e=>{ const b=e.target.closest('.tab'); if(!b
   $$('.panel').forEach(p=>p.classList.toggle('active',p.id===id));
   if(id==='reportes') renderReportes(); if(id==='movimientos') renderMov(); if(id==='ingresos') renderPeriodo('ingreso'); if(id==='egresos') renderPeriodo('egreso');
   if(id==='pagosfijos') renderPagos(); if(id==='servicios') renderServicios(); if(id==='operador') renderOperador();
-  if(id==='recuperacion') renderRecuperacion(); if(id==='responsabilidades') renderResp(); if(id==='compras') renderCompras(); if(id==='contactos') renderContactos(); if(id==='prestamos') renderPrestamos();
+  if(id==='recuperacion') renderRecuperacion(); if(id==='responsabilidades') renderResp(); if(id==='compras') renderCompras(); if(id==='contactos') renderContactos(); if(id==='prestamos') renderPrestamos(); if(id==='vehiculo') renderVehiculo();
 });
 
 /* ============ DESGLOSE ============ */
@@ -972,6 +1059,10 @@ $('#movDesde').addEventListener('change',renderMov); $('#movHasta').addEventList
 $('#movRangeClear').addEventListener('click',()=>{ $('#movDesde').value=''; $('#movHasta').value=''; renderMov(); });
 $('#fondoSave').addEventListener('click',()=>{ state.fondo.min=parseCentavos($('#fondoMin').value); save(LS.fondo,state.fondo); renderMov(); toast('Fondo mínimo guardado'); });
 function globalBalance(){ let i=0,o=0; state.mov.forEach(m=>{ if(m.tipo==='ingreso') i+=m.cents; else o+=m.cents; }); return i-o; }
+function cajaDisponible(){ const activos=state.prest.filter(p=>!p.pagado).reduce((a,p)=>a+p.monto,0); return (state.caja.aportado||0)-activos; }
+$('#cajaAporteSave').addEventListener('click',()=>{ state.caja.aporteFijo=parseCentavos($('#cajaAporte').value); save(LS.caja,state.caja); renderCaja(); toast('Monto de aporte guardado'); });
+$('#cajaAportar').addEventListener('click',()=>{ const fijo=state.caja.aporteFijo||parseCentavos($('#cajaAporte').value); if(fijo<=0){ toast('Define primero el monto de aporte'); return; } state.caja.aportado=(state.caja.aportado||0)+fijo; save(LS.caja,state.caja); renderCaja(); if(window.renderPrestamos) renderPrestamos(); toast('Aportado '+fmt(fijo)+' a la caja chica'); });
+function renderCaja(){ $('#cajaAporte').value=state.caja.aporteFijo?state.caja.aporteFijo/100:''; $('#cajaFijoKpi').textContent=fmt(state.caja.aporteFijo||0); $('#cajaAportadoKpi').textContent=fmt(state.caja.aportado||0); const disp=cajaDisponible(); $('#cajaDispKpi').textContent=fmt(disp); const activos=state.prest.filter(p=>!p.pagado).reduce((a,p)=>a+p.monto,0); $('#cajaHint').innerHTML=`Prestado activo: ${fmt(activos)}. El dinero aportado sale de tus ingresos; cada préstamo descuenta de "disponible" y se registra como egreso en Movimientos (al devolverlo, vuelve como ingreso).`; }
 function renderMov(){
   $('#movResp').placeholder = state.payer? state.payer : 'Quién registra/realiza';
   const rows=movInRange(); let i=0,o=0; rows.forEach(m=>{ if(m.tipo==='ingreso') i+=m.cents; else o+=m.cents; });
@@ -984,6 +1075,7 @@ function renderMov(){
   else fs.innerHTML=`<span class="inline-note">Define un fondo mínimo para recibir alertas.</span>`;
   // rango label
   const d=$('#movDesde').value,h=$('#movHasta').value; $('#movRangeLabel').textContent = (d||h)?`Mostrando del ${d?fmtDate(d):'inicio'} al ${h?fmtDate(h):'hoy'} · ${rows.length} movimiento(s)`:`Todos los movimientos · ${rows.length}`;
+  renderCaja();
   renderMovTable(rows);
 }
 function renderMovTable(rows){
@@ -1211,20 +1303,48 @@ function renderRecuperacion(){
 let prEditId=null;
 function resetPrForm(){ prEditId=null; $('#prPersona').value=''; $('#prMonto').value=''; $('#prConcepto').value=''; $('#prFecha').value=todayStr(); $('#prRegreso').value=''; $('#prAdd').textContent='＋ Registrar préstamo'; $('#prCancel').style.display='none'; }
 $('#prCancel').addEventListener('click',resetPrForm);
-$('#prAdd').addEventListener('click',()=>{ const persona=$('#prPersona').value.trim(); const monto=parseCentavos($('#prMonto').value); if(!persona||monto<=0){ toast('Nombre y monto'); return; } const rec={persona,monto,concepto:$('#prConcepto').value.trim(),fecha:$('#prFecha').value||todayStr(),regreso:$('#prRegreso').value||'',pagado:false,fechaPago:''}; if(prEditId){ const p=state.prest.find(x=>x.id===prEditId); if(p) Object.assign(p,rec); toast('Préstamo actualizado'); } else { state.prest.push({id:uid(),...rec}); toast('Préstamo registrado'); } save(LS.prest,state.prest); resetPrForm(); renderPrestamos(); });
+$('#prAdd').addEventListener('click',()=>{ const persona=$('#prPersona').value.trim(); const monto=parseCentavos($('#prMonto').value); if(!persona||monto<=0){ toast('Nombre y monto'); return; }
+  if(prEditId){ const p=state.prest.find(x=>x.id===prEditId); if(p){ p.persona=persona; p.monto=monto; p.concepto=$('#prConcepto').value.trim(); p.fecha=$('#prFecha').value||todayStr(); p.regreso=$('#prRegreso').value||''; } save(LS.prest,state.prest); toast('Préstamo actualizado'); resetPrForm(); renderPrestamos(); return; }
+  const disp=cajaDisponible(); if(monto>disp){ if(!confirm(`La caja chica disponible es ${fmt(disp)} y el préstamo es ${fmt(monto)}. ¿Registrarlo de todas formas?`)) return; }
+  const fecha=$('#prFecha').value||todayStr(); const concepto=$('#prConcepto').value.trim();
+  const movId=addMov('egreso',monto,'Préstamo',fecha,'Préstamo a '+persona+(concepto?(' — '+concepto):''),state.payer||'','Variable','Ocasional');
+  state.prest.push({id:uid(),persona,monto,concepto,fecha,regreso:$('#prRegreso').value||'',pagado:false,fechaPago:'',movId,movIdDev:''});
+  save(LS.prest,state.prest); resetPrForm(); renderPrestamos(); toast('Préstamo registrado y descontado de la caja (egreso)'); });
 function editPrest(id){ const p=state.prest.find(x=>x.id===id); if(!p) return; prEditId=id; $('#prPersona').value=p.persona; $('#prMonto').value=p.monto/100; $('#prConcepto').value=p.concepto||''; $('#prFecha').value=p.fecha; $('#prRegreso').value=p.regreso||''; $('#prAdd').textContent='Guardar cambios'; $('#prCancel').style.display='inline-flex'; document.getElementById('prestamos').scrollIntoView({behavior:'smooth',block:'start'}); }
 $('#prPdf').addEventListener('click',()=>{ if(!state.prest.length){ toast('Sin préstamos'); return; } const body=state.prest.map(p=>[p.persona,p.concepto||'—',fmtDate(p.fecha),p.regreso?fmtDate(p.regreso):'—',p.pagado?('Devuelto '+(p.fechaPago?fmtDate(p.fechaPago):'')):'Pendiente',mxn.format(p.monto/100)]); const porC=state.prest.filter(p=>!p.pagado).reduce((a,p)=>a+p.monto,0); exportTablePDF('Préstamos','Dinero prestado',['Persona','Concepto','Prestado','Regreso','Estatus','Monto'],body,{5:{halign:'right',fontStyle:'bold'}},`Por cobrar: ${fmt(porC)}`); });
+function numLetras(n){ // entero de pesos a letra (hasta millones)
+  n=Math.floor(n); if(n===0) return 'cero'; const UNI=['','uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve','diez','once','doce','trece','catorce','quince','dieciséis','diecisiete','dieciocho','diecinueve','veinte','veintiuno','veintidós','veintitrés','veinticuatro','veinticinco','veintiséis','veintisiete','veintiocho','veintinueve']; const DEC=['','','','treinta','cuarenta','cincuenta','sesenta','setenta','ochenta','noventa']; const CEN=['','ciento','doscientos','trescientos','cuatrocientos','quinientos','seiscientos','setecientos','ochocientos','novecientos'];
+  function c(x){ let s=''; if(x===100) return 'cien'; const ce=Math.floor(x/100); const re=x%100; if(ce) s+=CEN[ce]+(re?' ':''); if(re<30) s+=UNI[re]; else { const d=Math.floor(re/10),u=re%10; s+=DEC[d]+(u?' y '+UNI[u]:''); } return s.trim(); }
+  let out=''; const millones=Math.floor(n/1000000); const miles=Math.floor((n%1000000)/1000); const resto=n%1000;
+  if(millones) out+=(millones===1?'un millón':c(millones)+' millones')+' ';
+  if(miles) out+=(miles===1?'mil':c(miles)+' mil')+' ';
+  if(resto) out+=c(resto);
+  return out.trim().replace(/\s+/g,' '); }
+function reciboPrestamo(id){ const p=state.prest.find(x=>x.id===id); if(!p) return; const {jsPDF}=window.jspdf; const doc=new jsPDF({unit:'pt',format:'a5'}); const W=doc.internal.pageSize.getWidth(); const brand=[15,109,99]; const prestamista=state.payer||'El dueño de la unidad';
+  doc.setFillColor(...brand); doc.rect(0,0,W,58,'F'); doc.setTextColor(255); doc.setFont('helvetica','bold'); doc.setFontSize(17); doc.text('RECIBO DE PRÉSTAMO',W/2,30,{align:'center'}); doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.text('Folio: '+id.slice(-6).toUpperCase(),W-24,48,{align:'right'}); doc.text('Caja MXN',24,48);
+  const pesos=Math.floor(p.monto/100), cent=p.monto%100; const letra=numLetras(pesos)+' pesos '+pad(cent)+'/100 M.N.';
+  let y=92; doc.setTextColor(30); doc.setFont('helvetica','normal'); doc.setFontSize(11);
+  const linea=(t)=>{ const w=doc.splitTextToSize(t,W-48); doc.text(w,24,y); y+=w.length*16+2; };
+  linea(`Fecha de préstamo: ${fmtDate(p.fecha)}`);
+  doc.setFont('helvetica','bold'); doc.setFontSize(20); doc.setTextColor(...brand); doc.text(fmt(p.monto),24,y+10); y+=30; doc.setFont('helvetica','italic'); doc.setFontSize(10); doc.setTextColor(90); doc.text('('+letra+')',24,y); y+=22; doc.setTextColor(30); doc.setFont('helvetica','normal'); doc.setFontSize(11);
+  linea(`Recibí de ${prestamista} la cantidad de ${fmt(p.monto)} por concepto de: ${p.concepto||'préstamo personal'}.`);
+  linea(`Me comprometo a devolver dicha cantidad el día ${p.regreso?fmtDate(p.regreso):'______________'}.`);
+  y+=24; const colW=(W-48)/2; doc.setDrawColor(120); doc.line(24,y,24+colW-20,y); doc.line(24+colW+8,y,W-24,y); y+=14; doc.setFontSize(9); doc.setTextColor(90); doc.text('Quien recibe (deudor): '+p.persona,24,y); doc.text('Quien presta: '+prestamista,24+colW+8,y);
+  const gen=new Date(); doc.setFontSize(7.5); doc.setTextColor(150); doc.text('Generado por Caja MXN · '+gen.toLocaleDateString('es-MX'),W/2,doc.internal.pageSize.getHeight()-16,{align:'center'});
+  doc.save(`Recibo-prestamo_${p.persona.replace(/\s+/g,'-')}_${p.fecha}.pdf`); toast('Recibo generado ✓'); }
 $('#ahSave').addEventListener('click',()=>{ state.ahorro.plan={monto:parseCentavos($('#ahMonto').value),frecuencia:$('#ahFreq').value}; save(LS.ahorro,state.ahorro); renderPrestamos(); toast('Plan de ahorro guardado'); });
 $('#ahDepAdd').addEventListener('click',()=>{ const monto=parseCentavos($('#ahDepMonto').value); if(monto<=0){ toast('Escribe un monto'); return; } state.ahorro.deposits.push({id:uid(),monto,fecha:$('#ahDepFecha').value||todayStr(),nota:$('#ahDepNota').value.trim()}); save(LS.ahorro,state.ahorro); $('#ahDepMonto').value=''; $('#ahDepNota').value=''; renderPrestamos(); toast('Aportación registrada'); });
 function renderPrestamos(){
   const porCobrar=state.prest.filter(p=>!p.pagado).reduce((a,p)=>a+p.monto,0); const devuelto=state.prest.filter(p=>p.pagado).reduce((a,p)=>a+p.monto,0);
   $('#prPorCobrar').textContent=fmt(porCobrar); $('#prDevuelto').textContent=fmt(devuelto); $('#prActivos').textContent=state.prest.filter(p=>!p.pagado).length;
+  const pd=$('#prDisp'); if(pd) pd.textContent=`Caja chica disponible: ${fmt(cajaDisponible())} (configúrala en Movimientos).`;
   const list=$('#prList'); const sorted=[...state.prest].sort((a,b)=>(a.pagado?1:0)-(b.pagado?1:0)||(a.regreso||'9999')<(b.regreso||'9999')?-1:1);
   list.innerHTML=sorted.map(p=>{ const vencido=!p.pagado&&p.regreso&&p.regreso<todayStr(); const estado=p.pagado?'<span class="pill ok">Devuelto</span>':(vencido?'<span class="pill late">Vencido</span>':'<span class="pill due">Pendiente</span>'); const meta=[]; meta.push('Prestado '+fmtDate(p.fecha)); if(p.regreso) meta.push('Regreso '+fmtDate(p.regreso)+(p.pagado?'':' ('+relDays(p.regreso)+')')); if(p.concepto) meta.push(p.concepto);
-    return `<div class="ritem${p.pagado?' done':''}${vencido?' late':''}"><div class="checkbox${p.pagado?' on':''}" title="Marcar devuelto" data-chk="${p.id}">${p.pagado?'✓':''}</div><div class="main"><div class="rname">${p.persona} ${estado}</div><div class="rmeta">${meta.join(' · ')}</div></div><div class="rmoney money">${fmt(p.monto)}</div><div class="ract"><button class="edit" data-edit="${p.id}">✏️</button><button class="del" data-del="${p.id}">🗑</button></div></div>`; }).join('')||`<div class="empty"><div class="big">🤝</div>Sin préstamos registrados.</div>`;
-  list.querySelectorAll('[data-chk]').forEach(b=>b.onclick=()=>{ const p=state.prest.find(x=>x.id===b.dataset.chk); p.pagado=!p.pagado; p.fechaPago=p.pagado?todayStr():''; save(LS.prest,state.prest); renderPrestamos(); });
+    return `<div class="ritem${p.pagado?' done':''}${vencido?' late':''}"><div class="checkbox${p.pagado?' on':''}" title="Marcar devuelto" data-chk="${p.id}">${p.pagado?'✓':''}</div><div class="main"><div class="rname">${p.persona} ${estado}</div><div class="rmeta">${meta.join(' · ')}</div></div><div class="rmoney money">${fmt(p.monto)}</div><div class="ract"><button class="btn ghost sm" data-recibo="${p.id}" title="Generar recibo">📄 Recibo</button><button class="edit" data-edit="${p.id}">✏️</button><button class="del" data-del="${p.id}">🗑</button></div></div>`; }).join('')||`<div class="empty"><div class="big">🤝</div>Sin préstamos registrados.</div>`;
+  list.querySelectorAll('[data-chk]').forEach(b=>b.onclick=()=>{ const p=state.prest.find(x=>x.id===b.dataset.chk); p.pagado=!p.pagado; if(p.pagado){ p.fechaPago=todayStr(); p.movIdDev=addMov('ingreso',p.monto,'Préstamo devuelto',p.fechaPago,'Devolución de '+p.persona,state.payer||'','Variable','Ocasional'); } else { p.fechaPago=''; if(p.movIdDev){ state.mov=state.mov.filter(m=>m.id!==p.movIdDev); save(LS.mov,state.mov); p.movIdDev=''; } } save(LS.prest,state.prest); renderPrestamos(); });
   list.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editPrest(b.dataset.edit));
-  list.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ if(!confirm('¿Eliminar préstamo?'))return; state.prest=state.prest.filter(x=>x.id!==b.dataset.del); save(LS.prest,state.prest); renderPrestamos(); });
+  list.querySelectorAll('[data-recibo]').forEach(b=>b.onclick=()=>reciboPrestamo(b.dataset.recibo));
+  list.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ if(!confirm('¿Eliminar préstamo? (También se quitan sus movimientos ligados)'))return; const p=state.prest.find(x=>x.id===b.dataset.del); if(p){ state.mov=state.mov.filter(m=>m.id!==p.movId&&m.id!==p.movIdDev); save(LS.mov,state.mov); } state.prest=state.prest.filter(x=>x.id!==b.dataset.del); save(LS.prest,state.prest); renderPrestamos(); });
   // Ahorro
   const pl=state.ahorro.plan||{monto:0,frecuencia:'semanal'}; $('#ahMonto').value=pl.monto?pl.monto/100:''; $('#ahFreq').value=pl.frecuencia;
   const perAnual={diario:365,semanal:52,quincenal:24,mensual:12}[pl.frecuencia]||52; const anual=pl.monto*perAnual;
@@ -1235,6 +1355,10 @@ function renderPrestamos(){
   dt.innerHTML=deps.length? `<div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Nota</th><th style="text-align:right">Monto</th><th></th></tr></thead><tbody>${deps.map(d=>`<tr><td>${fmtDate(d.fecha)}</td><td style="color:var(--muted)">${d.nota||'—'}</td><td class="amt" style="color:var(--in)">${fmt(d.monto)}</td><td style="width:40px"><button class="del" data-dep="${d.id}">🗑</button></td></tr>`).join('')}<tr><td colspan="2" style="font-weight:700">Acumulado</td><td class="amt" style="color:var(--brand);font-weight:700">${fmt(tot)}</td><td></td></tr></tbody></table></div>` : `<div class="empty"><div class="big">💰</div>Aún no hay aportaciones.</div>`;
   dt.querySelectorAll('[data-dep]').forEach(b=>b.onclick=()=>{ state.ahorro.deposits=state.ahorro.deposits.filter(x=>x.id!==b.dataset.dep); save(LS.ahorro,state.ahorro); renderPrestamos(); });
 }
+
+/* ============ VEHÍCULO ============ */
+$('#vhSave').addEventListener('click',()=>{ state.vehiculo={placas:$('#vhPlacas').value.trim(),vin:$('#vhVin').value.trim(),color:$('#vhColor').value.trim(),km:$('#vhKm').value.trim(),aseguradora:$('#vhAseg').value.trim(),poliza:$('#vhPoliza').value.trim()}; save(LS.vehiculo,state.vehiculo); toast('Datos de la unidad guardados'); });
+function renderVehiculo(){ const v=state.vehiculo||{}; $('#vhPlacas').value=v.placas||''; $('#vhVin').value=v.vin||''; $('#vhColor').value=v.color||''; $('#vhKm').value=v.km||''; $('#vhAseg').value=v.aseguradora||''; $('#vhPoliza').value=v.poliza||''; }
 
 /* ============ RESPONSABILIDADES ============ */
 function refreshRespNameSelects(){ const opts=state.respNames.map(n=>`<option>${n}</option>`).join(''); const p=$('#respPrin'),a=$('#respApoyo'); const pc=p.value,ac=a.value; p.innerHTML=opts; a.innerHTML=`<option>—</option>`+opts; if(state.respNames.includes(pc)) p.value=pc; if(ac==='—'||state.respNames.includes(ac)) a.value=ac; }
