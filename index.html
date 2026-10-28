@@ -712,6 +712,19 @@
     </div>
 
     <div class="card pad" style="margin-bottom:var(--sp)">
+      <div class="head">
+        <div><h2 class="card-title" style="margin:0">📈 Kilometraje y próximo servicio</h2><p class="card-note tight" style="margin-top:3px">Actualiza el km cada semana; el sistema calcula solo cuál servicio sigue (por fecha o km, lo que ocurra primero).</p></div>
+        <div class="actions"><div style="min-width:150px"><label class="fld">Km actual</label><input id="vhKmSem" class="input" inputmode="numeric" placeholder="Ej. 3,500"/></div><button class="btn primary sm" id="vhKmSemSave" style="align-self:flex-end">Actualizar km</button></div>
+      </div>
+      <div class="kpis c3" style="margin-top:6px">
+        <div class="kpi"><div class="k">Km registrado</div><div class="v" id="vhKmKpi" style="font-size:20px">0</div></div>
+        <div class="kpi brandv"><div class="k">Siguiente servicio</div><div class="v" id="vhNextServ" style="font-size:15px">—</div></div>
+        <div class="kpi" id="vhNextKpi"><div class="k">Cuándo toca</div><div class="v" id="vhNextWhen" style="font-size:15px">—</div></div>
+      </div>
+      <div class="hint" id="vhNextDetalle"></div>
+    </div>
+
+    <div class="card pad" style="margin-bottom:var(--sp)">
       <h2 class="card-title">Datos de mi unidad <span class="inline-note">(editable)</span></h2>
       <div class="form-grid">
         <div><label class="fld" for="vhPlacas">Placas</label><input id="vhPlacas" class="input" placeholder="Ej. ABC-12-34"/></div>
@@ -900,6 +913,23 @@
     </div>
 
     <div class="card pad" style="margin-bottom:var(--sp)">
+      <h3 class="card-title">⚠ ¿En qué momento te SALES de RESICO?</h3>
+      <p class="card-note">Te sacan del régimen (y pasas al general, con tarifa de hasta 35% y <strong>ya no puedes regresar a RESICO</strong>) si ocurre cualquiera de esto:</p>
+      <div class="sectionlabel" style="margin-top:0">Avance de tus ingresos del año hacia el límite</div>
+      <div class="result-head"><div class="inline-note" id="limAnioLbl">—</div><div class="result-total money" id="limPct" style="font-size:22px">0%</div></div>
+      <div class="progress"><div class="fill" id="limBar" style="width:0%"></div></div>
+      <div class="hint" id="limMsg"></div>
+      <div class="table-wrap" style="margin-top:12px"><table><tbody>
+        <tr><th style="width:55%">1. Ingresos del año mayores a</th><td><strong class="deduc-no">$3,500,000</strong> (incluye sueldos/intereses si tienes)</td></tr>
+        <tr><th>2. Omitir declaraciones mensuales</th><td><strong class="deduc-no">3 o más</strong> en el año (seguidas o no)</td></tr>
+        <tr><th>3. No presentar la declaración anual</th><td>En abril</td></tr>
+        <tr><th>4. No emitir CFDI / no estar al corriente</th><td>Buzón tributario y e.firma activos</td></tr>
+        <tr><th>5. Entrar en un supuesto no permitido</th><td>Ser socio/accionista de empresa, cobrar asimilados a salarios, etc.</td></tr>
+      </tbody></table></div>
+      <div class="hint">Importante: pasarte de un <strong>rango mensual</strong> (los $25k, $50k…) <strong>solo sube tu tasa</strong> (hasta 2.5%); <strong>NO</strong> te saca del régimen. Lo que te saca es el <strong>límite anual de $3.5 millones</strong> y los incumplimientos.</div>
+    </div>
+
+    <div class="card pad" style="margin-bottom:var(--sp)">
       <h3 class="card-title">Calculadora rápida de ISR (RESICO)</h3>
       <p class="card-note">Escribe lo que cobraste (facturaste) en el mes y te muestra el ISR estimado.</p>
       <div class="form-grid">
@@ -941,7 +971,32 @@
         <div class="ritem"><div class="main"><div class="rname"><span class="deduc-no">✘</span> No emitir CFDI o no declarar</div><div class="rmeta">3 declaraciones omitidas en el año o no presentar la anual te sacan de RESICO.</div></div></div>
         <div class="ritem"><div class="main"><div class="rname"><span class="deduc-no">✘</span> Gastos personales a nombre del negocio</div><div class="rmeta">No corresponden a la operación de la unidad.</div></div></div>
       </div>
-      <div class="warn-box" style="margin-top:14px">⚠ Esta guía es informativa y general. El transporte público tiene reglas particulares (IVA exento, facturación del pasaje). Tu <strong>contadora</strong> es quien presenta declaraciones y te dice qué aplica a tu caso; usa esto para entender y tener los papeles listos.</div>
+      <div class="warn-box" style="margin-top:14px">⚠ Esta guía es informativa y general. El transporte público tiene reglas particulares (IVA exento, facturación del pasaje). Si no tienes contador, considera uno al menos para el alta y la anual; con esta guía llevas tus cuentas claras el resto del año.</div>
+    </div>
+
+    <div class="card pad" style="margin-bottom:var(--sp)">
+      <h3 class="card-title">✅ Cómo llevar las cuentas claras (sin contador, paso a paso)</h3>
+      <div class="rlist">
+        <div class="ritem"><div class="checkbox">1</div><div class="main"><div class="rname">Ten tus llaves del SAT listas</div><div class="rmeta">e.firma + Contraseña, habilita el <strong>Buzón Tributario</strong> y descarga tu Constancia de Situación Fiscal (ahí ves tu régimen RESICO).</div></div></div>
+        <div class="ritem"><div class="checkbox">2</div><div class="main"><div class="rname">Factura todos tus ingresos (CFDI)</div><div class="rmeta">Pasaje al público → una <strong>factura global</strong> por periodo (diario/semanal). Si cobras a la línea (empresa) → CFDI con <strong>retención 1.25%</strong>.</div></div></div>
+        <div class="ritem"><div class="checkbox">3</div><div class="main"><div class="rname">Registra el 100% de lo cobrado</div><div class="rmeta">Captúralo en la pestaña <strong>Ingresos</strong>; esa es la base de tu impuesto (no la utilidad).</div></div></div>
+        <div class="ritem"><div class="checkbox">4</div><div class="main"><div class="rname">Separa el dinero del negocio</div><div class="rmeta">Una cuenta/tarjeta solo para la unidad; paga gastos con transferencia o tarjeta (evita efectivo &gt; $2,000).</div></div></div>
+        <div class="ritem"><div class="checkbox">5</div><div class="main"><div class="rname">Declara y paga el ISR mensual</div><div class="rmeta">En el portal del SAT, a más tardar el <strong>día 17</strong>; viene precargado con tus CFDI. Guarda el acuse y el pago.</div></div></div>
+        <div class="ritem"><div class="checkbox">6</div><div class="main"><div class="rname">Aparta para impuestos cada semana</div><div class="rmeta">Guarda ~1%–2.5% de lo que cobras (según tu nivel) para no batallar el día 17. Puedes usar el <strong>Ahorro</strong> de la app.</div></div></div>
+        <div class="ritem"><div class="checkbox">7</div><div class="main"><div class="rname">Guarda todo 5 años y concilia</div><div class="rmeta">Facturas y acuses. Que lo que registras cuadre con lo que el SAT ve en tus CFDI.</div></div></div>
+        <div class="ritem"><div class="checkbox">8</div><div class="main"><div class="rname">Presenta la declaración anual</div><div class="rmeta">En <strong>abril</strong>; se recalcula el año y se restan tus pagos mensuales y retenciones.</div></div></div>
+      </div>
+    </div>
+
+    <div class="card pad">
+      <h3 class="card-title">🏛️ Lo estatal — Estado de México (aparte del SAT)</h3>
+      <p class="card-note">RESICO es <strong>federal</strong>. En el Edomex, además, considera:</p>
+      <div class="table-wrap"><table><tbody>
+        <tr><th style="width:48%">Impuesto sobre Nóminas (ISERTP)</th><td><strong>3%</strong> sobre sueldos <em>solo si tienes operador como empleado formal</em>. Cuota fija de $250 por trabajador (hasta 4) si pagas ≤1.5 salarios mínimos. Si el operador trabaja "por cuenta" sin relación laboral formal, no aplica — confírmalo.</td></tr>
+        <tr><th>Control vehicular Edomex</th><td>Refrendo/tarjetón anual, placas y, en su caso, tenencia y verificación vehicular vigentes.</td></tr>
+        <tr><th>Transporte público</th><td>Obligaciones de la concesión/permiso de la línea: revista mecánica, seguro del viajero, tarjetón del operador.</td></tr>
+      </tbody></table></div>
+      <div class="warn-box" style="margin-top:12px">Esta guía es orientativa. El transporte público tiene reglas especiales (IVA exento del pasaje urbano, factura global). Para el <strong>alta</strong> y la <strong>declaración anual</strong> conviene al menos una asesoría puntual; el día a día (facturar, registrar, apartar, declarar mensual) ya lo puedes llevar con esta app.</div>
     </div>
   </section>
 
@@ -1113,7 +1168,7 @@ function closestBelow(target,values){ if(!values.length) return 0; const g=value
 /* ===== Persistencia ===== */
 const LS={ mov:'cajaMXN_mov_v1',cats:'cajaMXN_cats_v1',den:'cajaMXN_den_v1',theme:'cajaMXN_theme_v1',
   rem:'cajaMXN_pf_v5',paylog:'cajaMXN_paylog_v3',comp:'cajaMXN_comp_v2',ct:'cajaMXN_ct_v3',payer:'cajaMXN_payer_v1',
-  resp:'cajaMXN_resp_v1',oper:'cajaMXN_oper_v1',serv:'cajaMXN_serv_v5',inv:'cajaMXN_inv_v1',fondo:'cajaMXN_fondo_v1',compCats:'cajaMXN_compcats_v1',operCats:'cajaMXN_opercats_v1',prest:'cajaMXN_prest_v1',ahorro:'cajaMXN_ahorro_v1',respNames:'cajaMXN_respnames_v1',caja:'cajaMXN_caja_v1',vehiculo:'cajaMXN_vehiculo_v1',refac:'cajaMXN_refac_v1',fuel:'cajaMXN_fuel_v1',fiscal:'cajaMXN_fiscal_v1' };
+  resp:'cajaMXN_resp_v1',oper:'cajaMXN_oper_v1',serv:'cajaMXN_serv_v6',inv:'cajaMXN_inv_v1',fondo:'cajaMXN_fondo_v1',compCats:'cajaMXN_compcats_v1',operCats:'cajaMXN_opercats_v1',prest:'cajaMXN_prest_v1',ahorro:'cajaMXN_ahorro_v1',respNames:'cajaMXN_respnames_v1',caja:'cajaMXN_caja_v1',vehiculo:'cajaMXN_vehiculo_v1',refac:'cajaMXN_refac_v1',fuel:'cajaMXN_fuel_v1',fiscal:'cajaMXN_fiscal_v1' };
 function load(k,f){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f; }catch(e){ return f; } }
 function save(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
@@ -1158,8 +1213,19 @@ function seedResp(){ return [
 const SERV_BASE='2026-10-20'; // inicio de operación (unidad nueva, km 0) = referencia cero
 const OP_START='2026-10-26';  // los cobros/pagos inician la semana del 26/oct (la primera semana fue gratis)
 const SERV_FIN='2030-12-31';  // programa de servicios hasta 2030
-// Servicios: se cuentan CADA 3 MESES a partir del 20/oct/2026 (el 20/oct es el cero, no es servicio).
-function seedServ(){ const cats=['Servicio menor (aceite y filtro)','Frenos','Servicio menor (aceite y filtro)','Servicio mayor (afinación)']; const out=[]; let d=addMonthsISO(SERV_BASE,3),i=0; while(d<=SERV_FIN){ out.push({id:uid(),fechaProg:d,categoria:cats[i%cats.length],estatus:'pendiente',costo:0,fechaReal:'',donde:'',quien:'',notas:''}); d=addMonthsISO(d,3); i++; } return out; }
+const KM_POR_TRIM=15000;      // km estimados por trimestre (uso de ruta); editable por servicio
+// Programa de mantenimiento cada 3 meses desde el 20/oct/2026 (cero) hasta 2030, con km objetivo y tareas.
+function seedServ(){
+  const prog=[ // ciclo trimestral de tareas
+    {cat:'Servicio menor (aceite y filtro)',notas:'Aceite 5W-30 + filtro de aceite, revisión de niveles y presión de llantas'},
+    {cat:'Frenos',notas:'Revisión/cambio de balatas delanteras, rotación de llantas, filtro de aire'},
+    {cat:'Servicio menor (aceite y filtro)',notas:'Aceite 5W-30 + filtro de aceite, revisión de frenos y suspensión'},
+    {cat:'Servicio mayor (afinación)',notas:'Afinación mayor: bujías, filtros (aire/combustible), líquidos, revisión general (anual)'},
+  ];
+  const out=[]; let d=addMonthsISO(SERV_BASE,3),i=0;
+  while(d<=SERV_FIN){ const p=prog[i%prog.length]; out.push({id:uid(),fechaProg:d,kmProg:(i+1)*KM_POR_TRIM,categoria:p.cat,estatus:'pendiente',costo:0,fechaReal:'',kmReal:'',donde:'',quien:'',notas:p.notas}); d=addMonthsISO(d,3); i++; }
+  return out;
+}
 
 let state={
   mov:load(LS.mov,[]), cats:load(LS.cats,structuredClone(DEFAULT_CATS)), den:load(LS.den,DENOMS.map(d=>d.v)), tipoModo:'ambos',
@@ -1447,6 +1513,7 @@ const SVC_CATS=['Servicio menor (aceite y filtro)','Servicio mayor (afinación)'
 function kmActual(){ return parseInt(((state.vehiculo||{}).km||'').toString().replace(/[^0-9]/g,''))||0; }
 function servVencido(s){ if(s.estatus==='realizado') return false; const km=kmActual(); return (s.fechaProg<todayStr()) || (s.kmProg>0 && km>=s.kmProg); }
 function servTrigger(s){ const parts=['📅 '+fmtDate(s.fechaProg)]; if(s.kmProg>0) parts.push('🛞 '+s.kmProg.toLocaleString('es-MX')+' km'); return parts.join(' o ')+(s.kmProg>0?' (lo que ocurra primero)':''); }
+function siguienteServicio(){ const today=todayStr(); const pend=state.serv.filter(s=>s.estatus!=='realizado'); if(!pend.length) return null; const venc=pend.filter(servVencido).sort((a,b)=>a.fechaProg<b.fechaProg?-1:1); if(venc.length) return {s:venc[0],late:true}; const fut=[...pend].sort((a,b)=>a.fechaProg<b.fechaProg?-1:1).filter(s=>s.fechaProg>=today); return {s:(fut[0]||pend[0]),late:false}; }
 $('#svcKmSave').addEventListener('click',()=>{ state.vehiculo=state.vehiculo||{}; state.vehiculo.km=$('#svcKmActual').value.trim(); save(LS.vehiculo,state.vehiculo); renderServicios(); toast('Km actual guardado'); });
 $('#svcAdd').addEventListener('click',()=>{ const last=state.serv.length?state.serv[state.serv.length-1].fechaProg:SERV_BASE; const lastKm=state.serv.length?(state.serv[state.serv.length-1].kmProg||0):0; state.serv.push({id:uid(),fechaProg:addMonthsISO(last,3),kmProg:lastKm?lastKm+5000:0,categoria:SVC_CATS[0],estatus:'pendiente',costo:0,fechaReal:'',donde:'',quien:'',notas:''}); save(LS.serv,state.serv); renderServicios(); toast('Servicio agregado'); });
 $('#svcPdf').addEventListener('click',()=>{ if(!state.serv.length){ toast('Sin servicios'); return; } const body=[...state.serv].sort((a,b)=>a.fechaProg<b.fechaProg?-1:1).map(s=>[fmtDate(s.fechaProg),s.kmProg>0?s.kmProg.toLocaleString('es-MX'):'—',s.categoria,s.estatus==='realizado'?'Realizado':(servVencido(s)?'Vencido':'Pendiente'),s.fechaReal?fmtDate(s.fechaReal):'—',s.donde||'—',s.costo>0?mxn.format(s.costo/100):'—']); const tot=state.serv.reduce((a,s)=>a+(s.costo||0),0); exportTablePDF('Servicios','Urvan Panel 2026 — vence por fecha o km (lo que ocurra primero) · km actual '+kmActual().toLocaleString('es-MX'),['Fecha prog.','Km objetivo','Categoría','Estatus','Realizado','Dónde','Costo'],body,{6:{halign:'right',fontStyle:'bold'}},`Realizados: ${state.serv.filter(s=>s.estatus==='realizado').length}   Costo acumulado: ${fmt(tot)}`); });
@@ -1455,8 +1522,7 @@ function renderServicios(){
   const today=todayStr(); const km=kmActual();
   $('#svcKmActual').value=(state.vehiculo||{}).km||''; $('#svcKmKpi').textContent=km.toLocaleString('es-MX');
   // Próximo = primero no realizado que vence antes (por fecha o km)
-  let nextId=null; const pend=state.serv.filter(s=>s.estatus!=='realizado');
-  const vencidos=pend.filter(servVencido); if(vencidos.length){ nextId=vencidos[0].id; } else { const fut=pend.filter(s=>s.fechaProg>=today).sort((a,b)=>a.fechaProg<b.fechaProg?-1:1); if(fut.length) nextId=fut[0].id; else if(pend.length) nextId=pend[0].id; }
+  const sig=siguienteServicio(); const nextId=sig?sig.s.id:null;
   const done=state.serv.filter(s=>s.estatus==='realizado').length; const cost=state.serv.reduce((a,s)=>a+(s.costo||0),0);
   $('#svcDone').textContent=done; $('#svcCost').textContent=fmt(cost);
   const nx=state.serv.find(s=>s.id===nextId); $('#svcNext').textContent=nx?`${fmtDate(nx.fechaProg)}${nx.kmProg>0?' / '+nx.kmProg.toLocaleString('es-MX')+'km':''}`:'—';
@@ -1582,13 +1648,26 @@ $('#fuelPesos').addEventListener('input',fuelCalc); $('#fuelLitros').addEventLis
 function renderRefac(){ const cont=$('#refacTable'); cont.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Refacción / consumible</th><th>Marcas recomendadas</th><th style="text-align:right">Costo aprox.</th><th></th></tr></thead><tbody>${state.refac.map(r=>`<tr><td style="white-space:normal;min-width:150px;font-weight:600">${r.item}</td><td style="white-space:normal;min-width:180px"><input class="input mini" data-rf="marcas" data-id="${r.id}" value="${(r.marcas||'').replace(/"/g,'&quot;')}"/></td><td style="width:120px"><div class="money-input sm" style="min-width:110px"><span class="peso">$</span><input class="money" data-rf="costo" data-id="${r.id}" inputmode="decimal" value="${r.costo?(r.costo/100):''}"/></div></td><td style="width:36px"><button class="del" data-rfdel="${r.id}">🗑</button></td></tr>`).join('')}</tbody></table></div>`;
   cont.querySelectorAll('[data-rf]').forEach(el=>{ el.onchange=()=>{ const r=state.refac.find(x=>x.id===el.dataset.id); const f=el.dataset.rf; if(f==='costo') r.costo=parseCentavos(el.value); else r.marcas=el.value; save(LS.refac,state.refac); }; });
   cont.querySelectorAll('[data-rfdel]').forEach(b=>b.onclick=()=>{ state.refac=state.refac.filter(x=>x.id!==b.dataset.rfdel); save(LS.refac,state.refac); renderRefac(); }); }
-function renderVehiculo(){ const v=state.vehiculo||{}; $('#vhPlacas').value=v.placas||''; $('#vhVin').value=v.vin||''; $('#vhColor').value=v.color||''; $('#vhKm').value=v.km||''; $('#vhAseg').value=v.aseguradora||''; $('#vhPoliza').value=v.poliza||''; fuelRender(); fuelCalc(); renderRefac(); }
+$('#vhKmSemSave').addEventListener('click',()=>{ state.vehiculo=state.vehiculo||{}; state.vehiculo.km=$('#vhKmSem').value.trim(); save(LS.vehiculo,state.vehiculo); renderVehiculo(); toast('Km actualizado'); });
+function renderVehProximo(){ const km=kmActual(); $('#vhKmKpi').textContent=km.toLocaleString('es-MX'); $('#vhKmSem').value=(state.vehiculo||{}).km||''; const sig=siguienteServicio();
+  if(!sig){ $('#vhNextServ').textContent='—'; $('#vhNextWhen').textContent='—'; $('#vhNextDetalle').textContent='No hay servicios pendientes.'; $('#vhNextKpi').classList.remove('alert'); return; }
+  const s=sig.s; $('#vhNextServ').textContent=s.categoria; const faltaKm=(s.kmProg>0)?(s.kmProg-km):null;
+  $('#vhNextWhen').textContent = sig.late? '¡Ya toca!' : `${fmtDate(s.fechaProg)}`;
+  $('#vhNextKpi').classList.toggle('alert',sig.late);
+  const extra=[]; extra.push('📅 '+fmtDate(s.fechaProg)+' ('+relDays(s.fechaProg)+')'); if(s.kmProg>0) extra.push('🛞 objetivo '+s.kmProg.toLocaleString('es-MX')+' km'+(faltaKm!==null?(faltaKm>0?` (faltan ${faltaKm.toLocaleString('es-MX')} km)`:' (alcanzado)'):'')); if(s.notas) extra.push(s.notas);
+  $('#vhNextDetalle').innerHTML=(sig.late?'<span class="deduc-no">Vencido — </span>':'')+extra.join(' · ')+'. Se refleja en la pestaña <strong>Servicios</strong>.'; }
+function renderVehiculo(){ const v=state.vehiculo||{}; $('#vhPlacas').value=v.placas||''; $('#vhVin').value=v.vin||''; $('#vhColor').value=v.color||''; $('#vhKm').value=v.km||''; $('#vhAseg').value=v.aseguradora||''; $('#vhPoliza').value=v.poliza||''; renderVehProximo(); fuelRender(); fuelCalc(); renderRefac(); }
 
 /* ============ FISCAL / SAT (RESICO) ============ */
 $('#fiSave').addEventListener('click',()=>{ state.fiscal={rfc:$('#fiRfc').value.trim(),nombre:$('#fiNombre').value.trim()}; save(LS.fiscal,state.fiscal); toast('Datos fiscales guardados'); });
 function tasaRESICO(ingCent){ const i=ingCent/100; if(i<=25000) return 0.01; if(i<=50000) return 0.011; if(i<=83333.33) return 0.015; if(i<=208333.33) return 0.02; return 0.025; }
 $('#isrCalc').addEventListener('click',()=>{ const ing=parseCentavos($('#isrIngreso').value); if(ing<=0){ toast('Escribe tus ingresos del mes'); return; } const t=tasaRESICO(ing); const isr=Math.round(ing*t); $('#isrTasa').textContent=(t*100).toFixed(2).replace(/\.00$/,'')+'%'; $('#isrMonto').textContent=fmt(isr); $('#isrNeto').textContent=fmt(ing-isr); });
-function renderFiscal(){ const f=state.fiscal||{}; $('#fiRfc').value=f.rfc||''; $('#fiNombre').value=f.nombre||''; }
+function renderFiscal(){ const f=state.fiscal||{}; $('#fiRfc').value=f.rfc||''; $('#fiNombre').value=f.nombre||'';
+  // Medidor del límite anual de RESICO (ingresos del año actual)
+  const yr=todayStr().slice(0,4); const ingAnio=state.mov.filter(m=>m.tipo==='ingreso'&&m.fecha.slice(0,4)===yr).reduce((a,m)=>a+m.cents,0); const LIM=350000000; const pct=Math.min(100,ingAnio/LIM*100);
+  $('#limAnioLbl').innerHTML=`Año ${yr}: <strong>${fmt(ingAnio)}</strong> de ${fmt(LIM)}`; $('#limPct').textContent=pct.toFixed(2).replace(/\.00$/,'')+'%';
+  const bar=$('#limBar'); bar.style.width=pct+'%'; const over=ingAnio>LIM; bar.classList.toggle('done',!over&&pct<80); bar.style.background=over?'var(--out)':(pct>=80?'var(--warn)':'');
+  $('#limMsg').innerHTML = over? '<span class="deduc-no">Superaste el límite: pasas al régimen general.</span>' : (pct>=80? `<span style="color:var(--warn);font-weight:700">Cuidado: vas al ${pct.toFixed(1)}% del límite anual.</span>` : `Te quedan ${fmt(LIM-ingAnio)} de margen este año. (Se calcula con tus ingresos registrados en Movimientos.)`); }
 
 /* ============ RESPONSABILIDADES ============ */
 function refreshRespNameSelects(){ const opts=state.respNames.map(n=>`<option>${n}</option>`).join(''); const p=$('#respPrin'),a=$('#respApoyo'); const pc=p.value,ac=a.value; p.innerHTML=opts; a.innerHTML=`<option>—</option>`+opts; if(state.respNames.includes(pc)) p.value=pc; if(ac==='—'||state.respNames.includes(ac)) a.value=ac; }
