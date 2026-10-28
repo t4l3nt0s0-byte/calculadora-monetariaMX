@@ -232,6 +232,15 @@
   .legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;font-size:12.5px;color:var(--muted)}
   .legend span{display:inline-flex;align-items:center;gap:6px}
   .legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+  .ic-svg svg{width:20px;height:20px;vertical-align:-4px;margin-right:7px}
+  .fuelbar{height:28px;border-radius:9px;background:var(--panel-2);border:1px solid var(--line-strong);overflow:hidden;position:relative;margin:8px 0}
+  .fuelbar .fill{height:100%;background:linear-gradient(90deg,var(--out),var(--accent) 45%,var(--in));transition:width .4s}
+  .fuelbar .lbl{position:absolute;inset:0;display:grid;place-items:center;font-weight:700;font-size:13px;color:var(--ink);font-variant-numeric:tabular-nums}
+  .fuelquick{display:flex;gap:6px;flex-wrap:wrap}
+  .fuelquick button{border:1px solid var(--line-strong);background:var(--panel-2);color:var(--muted);border-radius:8px;padding:6px 10px;cursor:pointer;font-weight:700;font-size:12.5px}
+  .fuelquick button:hover{border-color:var(--brand);color:var(--brand)}
+  .deduc-si{color:var(--in);font-weight:700}
+  .deduc-no{color:var(--out);font-weight:700}
   .contact .ava{width:42px;height:42px;border-radius:12px;flex:none;display:grid;place-items:center;font-weight:700;color:#fff;font-family:"Space Grotesk";font-size:17px}
   .contact .cmain{flex:1;min-width:0}
   .contact .cname{font-weight:700}
@@ -277,6 +286,7 @@
     <button class="tab" data-tab="recuperacion"><span class="ic">📈</span> Recuperación</button>
     <button class="tab" data-tab="prestamos"><span class="ic">🤝</span> Préstamos / Ahorro</button>
     <button class="tab" data-tab="vehiculo"><span class="ic">🚐</span> Vehículo</button>
+    <button class="tab" data-tab="fiscal"><span class="ic">🧾</span> Fiscal / SAT</button>
     <button class="tab" data-tab="responsabilidades"><span class="ic">📋</span> Responsabilidades</button>
     <button class="tab" data-tab="compras"><span class="ic">🛒</span> Compras</button>
     <button class="tab" data-tab="contactos"><span class="ic">☎️</span> Contactos</button>
@@ -555,12 +565,12 @@
   <section class="panel" id="servicios">
     <div class="card pad" style="margin-bottom:var(--sp)">
       <div class="head">
-        <div><h2 class="card-title" style="margin:0">Programa de servicios — Nissan Urvan Panel 2026</h2><p class="card-note tight" style="margin-top:3px">Unidad nueva, inicio de operación <strong>20 oct 2026</strong> (km 0). Programa cada 3 meses, editable. La próxima se marca en color.</p></div>
-        <div class="actions"><button class="btn primary sm" id="svcPdf">⬇ PDF</button></div>
+        <div><h2 class="card-title" style="margin:0">Programa de servicios — Nissan Urvan Panel 2026</h2><p class="card-note tight" style="margin-top:3px">Avisa por <strong>fecha o kilometraje — lo que ocurra primero</strong> (según el manual). Unidad nueva, inicio 20 oct 2026 (km 0).</p></div>
+        <div class="actions"><div style="min-width:130px"><label class="fld">Km actual</label><input id="svcKmActual" class="input mini" inputmode="numeric" placeholder="Ej. 3,500"/></div><button class="btn ghost sm" id="svcKmSave" style="align-self:flex-end">Guardar km</button><button class="btn primary sm" id="svcPdf" style="align-self:flex-end">⬇ PDF</button></div>
       </div>
       <div class="kpis c4">
-        <div class="kpi"><div class="k">Inicio de operación</div><div class="v" id="svcStart" style="font-size:16px">20 oct 2026</div></div>
-        <div class="kpi brandv"><div class="k">Próximo servicio</div><div class="v" id="svcNext" style="font-size:16px">—</div></div>
+        <div class="kpi"><div class="k">Km actual</div><div class="v" id="svcKmKpi" style="font-size:16px">0</div></div>
+        <div class="kpi brandv"><div class="k">Próximo servicio</div><div class="v" id="svcNext" style="font-size:15px">—</div></div>
         <div class="kpi"><div class="k">Realizados</div><div class="v" id="svcDone">0</div></div>
         <div class="kpi"><div class="k">Costo acumulado</div><div class="v money" id="svcCost">$0.00</div></div>
       </div>
@@ -715,14 +725,118 @@
     </div>
 
     <div class="card pad" style="margin-bottom:var(--sp)">
-      <h3 class="card-title">🛞 Llantas y presión</h3>
+      <h3 class="card-title"><span class="ic-svg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="11" height="15" rx="1.5"/><path d="M14 8h3l4 4v7h-7"/><circle cx="7" cy="19" r="2"/><circle cx="17" cy="19" r="2"/><path d="M4 9h6"/></svg></span>Gasolina</h3>
+      <p class="card-note">Registra cuánto tiene y calcula cuánto pagarás al cargar. Capacidad nominal 65 L — no la sobrepases (carga hasta el primer corte de la bomba para mejor rendimiento y no dañar el sistema EVAP).</p>
+      <div class="form-grid">
+        <div><label class="fld" for="fuelCap">Capacidad máxima (L)</label><input id="fuelCap" class="input" inputmode="decimal" placeholder="65"/></div>
+        <div><label class="fld" for="fuelNivel">Gasolina actual (L)</label><input id="fuelNivel" class="input" inputmode="decimal" placeholder="0"/></div>
+        <div><label class="fld" for="fuelPrecio">Precio por litro</label><div class="money-input sm"><span class="peso">$</span><input id="fuelPrecio" class="money" inputmode="decimal" placeholder="24.00"/></div></div>
+        <div style="display:flex;align-items:flex-end"><button class="btn ghost" id="fuelSave" style="width:100%">Guardar</button></div>
+      </div>
+      <div class="fuelquick" style="margin-top:10px"><span class="inline-note" style="align-self:center">Nivel rápido:</span><button data-fq="0">Vacío</button><button data-fq="0.25">¼</button><button data-fq="0.5">½</button><button data-fq="0.75">¾</button><button data-fq="1">Lleno</button></div>
+      <div class="fuelbar"><div class="fill" id="fuelFill" style="width:0%"></div><div class="lbl" id="fuelBarLbl">—</div></div>
+      <div class="kpis c3">
+        <div class="kpi"><div class="k">Tiene</div><div class="v money" id="fuelTiene">0 L</div></div>
+        <div class="kpi"><div class="k">Falta para llenar</div><div class="v money" id="fuelFalta">0 L</div></div>
+        <div class="kpi brandv"><div class="k">Costo para llenar</div><div class="v money" id="fuelCostoLlenar">$0.00</div></div>
+      </div>
+      <div class="divider"></div>
+      <h3 class="card-title" style="font-size:14px">Calculadora de carga</h3>
+      <p class="card-note tight" style="margin-bottom:12px">Escribe pesos para saber cuántos litros te dan, o litros para saber cuánto pagas.</p>
+      <div class="form-grid">
+        <div><label class="fld" for="fuelPesos">Voy a cargar $ (pesos)</label><div class="money-input sm"><span class="peso">$</span><input id="fuelPesos" class="money" inputmode="decimal" placeholder="500.00"/></div></div>
+        <div><label class="fld" for="fuelLitros">…o cargar litros</label><input id="fuelLitros" class="input" inputmode="decimal" placeholder="0"/></div>
+      </div>
+      <div class="hint" id="fuelCalc"></div>
+    </div>
+
+    <div class="card pad" style="margin-bottom:var(--sp)">
+      <h3 class="card-title">🧰 Marcas recomendadas y costo aproximado <span class="inline-note">(precio editable)</span></h3>
+      <p class="card-note">Precios de referencia en México; edita el costo cuando suban o bajen, y las marcas si prefieres otra.</p>
+      <div id="refacTable"></div>
+      <div class="hint">El costo es orientativo (puede variar por marca, tienda y región). Compra las refacciones pidiéndolas por el número de serie (VIN).</div>
+    </div>
+
+    <div class="card pad" style="margin-bottom:var(--sp)">
+      <h3 class="card-title"><span class="ic-svg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg></span>Llantas y presión</h3>
       <div class="table-wrap"><table><tbody>
-        <tr><th style="width:45%">Medida de neumático</th><td>195/80 R15</td></tr>
+        <tr><th style="width:45%">Medida de neumático</th><td>195/80 R15 (índice de carga reforzado para uso comercial)</td></tr>
         <tr><th>Rin</th><td>Acero 15"</td></tr>
-        <tr><th>Monitoreo</th><td>Sistema TPMS (monitor de presión de llantas)</td></tr>
-        <tr><th>Presión recomendada</th><td>Consulta la <strong>etiqueta en el marco de la puerta del conductor</strong> (varía con la carga). En vans comerciales la trasera suele ser mayor que la delantera cuando va cargada — usa el valor de la etiqueta, no uno genérico.</td></tr>
-        <tr><th>Rotación / revisión</th><td>Revisar presión en frío cada semana; rotación según manual (aprox. cada 10,000 km).</td></tr>
+        <tr><th>Cantidad</th><td>4 en uso + 1 de refacción (total 5)</td></tr>
+        <tr><th>Refacción (dónde está)</th><td>Llanta de repuesto bajo el chasís, en la parte trasera, sostenida por un malacate/soporte que se baja con la llave de birlos (manivela). Revisa que también tenga presión.</td></tr>
+        <tr><th>Herramienta</th><td>Gato, llave de birlos y manivela del malacate — normalmente bajo el asiento o en el compartimiento trasero.</td></tr>
+        <tr><th>Presión recomendada</th><td>Consulta la <strong>etiqueta en el marco de la puerta del conductor</strong> (varía con la carga). En vans comerciales la trasera suele ir más alta que la delantera cuando va cargada — usa el valor de la etiqueta, no uno genérico.</td></tr>
+        <tr><th>Revisión de presión</th><td>En frío, <strong>cada semana</strong> (uso intensivo de ruta). Incluye la refacción.</td></tr>
+        <tr><th>Rotación</th><td>Cada 8,000–10,000 km para desgaste parejo.</td></tr>
+        <tr><th>Cambio de neumáticos</th><td>Por desgaste (profundidad mínima legal 1.6 mm). En transporte público se desgastan rápido: estima <strong>40,000–60,000 km</strong> o antes si ves desgaste irregular. Alineación y balanceo cada 10,000 km o al cambiar llantas.</td></tr>
       </tbody></table></div>
+    </div>
+
+    <div class="card pad" style="margin-bottom:var(--sp)">
+      <h3 class="card-title">🛢️ Aceite y filtros</h3>
+      <div class="table-wrap"><table><tbody>
+        <tr><th style="width:45%">Aceite de motor</th><td>Sintético <strong>5W-30</strong> API SN/SP (grado que indique Nissan)</td></tr>
+        <tr><th>Capacidad de aceite</th><td>≈ <strong>4.2 L</strong> con cambio de filtro (QR25; verifica con la varilla)</td></tr>
+        <tr><th>Cambio de aceite y filtro de aceite</th><td>Servicio severo (transporte público): cada <strong>5,000 km</strong> o 3 meses, lo que ocurra primero</td></tr>
+        <tr><th>Filtro de aceite</th><td>Compatible QR25 2.5L (mismo que March/Versa/Kicks/Rogue 2.5). Pide por número de serie (VIN)</td></tr>
+        <tr><th>Filtro de aire</th><td>Revisar cada 5,000 km; cambiar cada <strong>15,000–20,000 km</strong> (antes en zonas con mucho polvo/tierra)</td></tr>
+        <tr><th>Filtro de combustible</th><td>Cambio cada <strong>40,000 km</strong> aprox. o según manual</td></tr>
+        <tr><th>Filtro de cabina (A/C)</th><td>Verifica si tu versión lo equipa; si sí, cambio cada 15,000 km</td></tr>
+      </tbody></table></div>
+    </div>
+
+    <div class="card pad" style="margin-bottom:var(--sp)">
+      <h3 class="card-title">🔌 Encendido y bujías</h3>
+      <div class="table-wrap"><table><tbody>
+        <tr><th style="width:45%">Bujías</th><td>4 bujías de <strong>iridio</strong> (QR25). Separación ≈ 1.1 mm</td></tr>
+        <tr><th>Cambio de bujías</th><td>Iridio: cada <strong>60,000 km</strong> aprox. (revisar antes si falla el encendido)</td></tr>
+        <tr><th>Bobinas</th><td>Una bobina por cilindro (4). Cambio solo por falla</td></tr>
+        <tr><th>Batería</th><td>12 V, tipo comercial (grupo aprox. 55D23L / 75D23L). Vida 2–4 años; revisar bornes y carga</td></tr>
+        <tr><th>Banda de accesorios</th><td>Banda serpentina (micro-V). Revisar cada servicio; cambio aprox. cada <strong>60,000–90,000 km</strong> o si presenta grietas/ruido</td></tr>
+      </tbody></table></div>
+    </div>
+
+    <div class="card pad" style="margin-bottom:var(--sp)">
+      <h3 class="card-title">💧 Líquidos</h3>
+      <div class="table-wrap"><table><tbody>
+        <tr><th style="width:45%">Refrigerante / anticongelante</th><td>Nissan Long Life (larga duración). Revisar nivel cada semana; cambio según manual (1er cambio tardío, luego periódico)</td></tr>
+        <tr><th>Líquido de frenos</th><td>DOT 3 / DOT 4. Revisar nivel cada servicio; cambio cada <strong>2 años</strong></td></tr>
+        <tr><th>Aceite de transmisión (manual 5 vel)</th><td>Engranes API GL-4 (p. ej. 75W-90). Revisar/cambiar según manual (≈ 60,000 km en uso severo)</td></tr>
+        <tr><th>Líquido de dirección hidráulica</th><td>ATF Dexron del tipo que indique Nissan. Revisar nivel en cada servicio</td></tr>
+        <tr><th>Líquido limpiaparabrisas</th><td>Agua con aditivo; rellenar según uso</td></tr>
+      </tbody></table></div>
+    </div>
+
+    <div class="card pad" style="margin-bottom:var(--sp)">
+      <h3 class="card-title">🛑 Frenos y desgaste</h3>
+      <div class="table-wrap"><table><tbody>
+        <tr><th style="width:45%">Balatas delanteras</th><td>Pastillas de disco. En transporte público se gastan rápido: revisar cada 5,000 km; cambio típico <strong>20,000–40,000 km</strong> según uso</td></tr>
+        <tr><th>Balatas traseras</th><td>Zapatas de tambor. Revisar cada 10,000 km; cambio por desgaste</td></tr>
+        <tr><th>Discos / tambores</th><td>Rectificar o cambiar al cambiar balatas si hay desgaste o vibración</td></tr>
+        <tr><th>Freno de mano</th><td>Ajustar en cada servicio de frenos</td></tr>
+      </tbody></table></div>
+    </div>
+
+    <div class="card pad" style="margin-bottom:var(--sp)">
+      <h3 class="card-title">📋 Catálogo de consumibles e intervalos (servicio severo — transporte público)</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Consumible / refacción</th><th>Intervalo recomendado</th></tr></thead>
+        <tbody>
+        <tr><td>Aceite de motor 5W-30 + filtro de aceite</td><td class="amt">5,000 km / 3 meses</td></tr>
+        <tr><td>Filtro de aire</td><td class="amt">15,000–20,000 km</td></tr>
+        <tr><td>Filtro de combustible</td><td class="amt">40,000 km</td></tr>
+        <tr><td>Bujías de iridio (4)</td><td class="amt">60,000 km</td></tr>
+        <tr><td>Balatas delanteras</td><td class="amt">20,000–40,000 km</td></tr>
+        <tr><td>Rotación de llantas</td><td class="amt">8,000–10,000 km</td></tr>
+        <tr><td>Neumáticos (4)</td><td class="amt">40,000–60,000 km</td></tr>
+        <tr><td>Líquido de frenos</td><td class="amt">cada 2 años</td></tr>
+        <tr><td>Refrigerante</td><td class="amt">según manual</td></tr>
+        <tr><td>Aceite de transmisión</td><td class="amt">≈ 60,000 km</td></tr>
+        <tr><td>Banda de accesorios</td><td class="amt">60,000–90,000 km</td></tr>
+        <tr><td>Batería</td><td class="amt">2–4 años</td></tr>
+        </tbody>
+      </table></div>
+      <div class="warn-box" style="margin-top:12px">⚠ Intervalos de <strong>servicio severo</strong> por uso en ruta (muchas horas, arranques y paradas). Son una guía; confirma cada dato y las refacciones por el <strong>número de serie (VIN)</strong> en tu manual del propietario o con tu distribuidor Nissan. Registra cada cambio en la pestaña <strong>Servicios</strong>.</div>
     </div>
 
     <div class="card pad" style="margin-bottom:var(--sp)">
@@ -756,6 +870,78 @@
         <tr><th>Peso bruto vehicular (PBV)</th><td>3,200 kg</td></tr>
       </tbody></table></div>
       <div class="hint">Fuentes: catálogo oficial Nissan Urvan Panel y páginas de distribuidores. Las cifras pueden variar por versión y año; confírmalas en tu manual del propietario.</div>
+    </div>
+  </section>
+
+  <!-- ===== FISCAL / SAT ===== -->
+  <section class="panel" id="fiscal">
+    <div class="card pad" style="margin-bottom:var(--sp)">
+      <h2 class="card-title">🧾 Contabilidad ante el SAT — Régimen RESICO (persona física)</h2>
+      <p class="card-note">Guía orientativa para tu unidad de transporte. <strong>No sustituye a tu contadora</strong> (tú ya pagas $400/quincena); sirve para que entiendas qué pasa con tu dinero y qué papeles juntar.</p>
+      <div class="form-grid">
+        <div><label class="fld" for="fiRfc">Tu RFC</label><input id="fiRfc" class="input" placeholder="13 caracteres"/></div>
+        <div><label class="fld" for="fiNombre">Nombre / razón</label><input id="fiNombre" class="input" placeholder="Como está en el SAT"/></div>
+        <div style="display:flex;align-items:flex-end"><button class="btn primary" id="fiSave" style="width:100%">Guardar</button></div>
+      </div>
+    </div>
+
+    <div class="card pad" style="margin-bottom:var(--sp)">
+      <h3 class="card-title">Lo más importante de RESICO (lo que debes saber)</h3>
+      <div class="table-wrap"><table><tbody>
+        <tr><th style="width:42%">Sobre qué pagas</th><td>El ISR se calcula sobre tus <strong>ingresos cobrados</strong> en el mes, <strong>NO sobre la utilidad</strong>.</td></tr>
+        <tr><th>¿Se restan gastos?</th><td><span class="deduc-no">NO.</span> En RESICO persona física <strong>no se deducen gastos</strong> para el ISR; por eso la tasa es muy baja. (Esto resuelve tu duda principal.)</td></tr>
+        <tr><th>Tasa de ISR mensual</th><td>De <strong>1% a 2.5%</strong> según lo que cobres en el mes (ver tabla abajo).</td></tr>
+        <tr><th>Límite de ingresos</th><td>Hasta <strong>$3,500,000 al año</strong>. Si lo rebasas, sales del régimen.</td></tr>
+        <tr><th>Cuándo se paga</th><td>ISR mensual a más tardar el <strong>día 17</strong> del mes siguiente; declaración <strong>anual en abril</strong>.</td></tr>
+        <tr><th>Retención</th><td>Si facturas a una <strong>empresa (persona moral)</strong> —por ejemplo la línea—, te retienen <strong>1.25%</strong> que luego se te acredita.</td></tr>
+        <tr><th>IVA</th><td>El <strong>transporte público terrestre de pasajeros</strong> (urbano/suburbano) suele estar <strong>exento de IVA</strong>. Si tu servicio es exento: no cobras IVA y tampoco acreditas el IVA de tus gastos. <em>Confírmalo con tu contadora según tu permiso/ruta.</em></td></tr>
+        <tr><th>Obligaciones</th><td>Emitir CFDI de tus ingresos (global “público en general” para el pasaje), declarar y pagar a tiempo, tener e.firma, revisar el <strong>buzón tributario</strong> y estar al corriente.</td></tr>
+      </tbody></table></div>
+    </div>
+
+    <div class="card pad" style="margin-bottom:var(--sp)">
+      <h3 class="card-title">Calculadora rápida de ISR (RESICO)</h3>
+      <p class="card-note">Escribe lo que cobraste (facturaste) en el mes y te muestra el ISR estimado.</p>
+      <div class="form-grid">
+        <div><label class="fld" for="isrIngreso">Ingresos cobrados del mes</label><div class="money-input sm"><span class="peso">$</span><input id="isrIngreso" class="money" inputmode="decimal" placeholder="0.00"/></div></div>
+        <div style="display:flex;align-items:flex-end"><button class="btn primary" id="isrCalc" style="width:100%">Calcular ISR</button></div>
+      </div>
+      <div class="kpis c3" style="margin-top:14px">
+        <div class="kpi"><div class="k">Tasa aplicable</div><div class="v" id="isrTasa" style="font-size:20px">—</div></div>
+        <div class="kpi out"><div class="k">ISR del mes</div><div class="v money" id="isrMonto">$0.00</div></div>
+        <div class="kpi in"><div class="k">Te queda</div><div class="v money" id="isrNeto">$0.00</div></div>
+      </div>
+      <div class="table-wrap" style="margin-top:14px"><table><thead><tr><th>Ingreso mensual hasta</th><th style="text-align:right">Tasa ISR</th></tr></thead><tbody>
+        <tr><td>$25,000</td><td class="amt">1.00%</td></tr>
+        <tr><td>$50,000</td><td class="amt">1.10%</td></tr>
+        <tr><td>$83,333.33</td><td class="amt">1.50%</td></tr>
+        <tr><td>$208,333.33</td><td class="amt">2.00%</td></tr>
+        <tr><td>$3,500,000</td><td class="amt">2.50%</td></tr>
+      </tbody></table></div>
+      <div class="hint">La tasa se aplica a <strong>todo</strong> el ingreso del mes según el rango en que caiga (tabla SAT RESICO 2026). Es una estimación; la cifra oficial la determina tu declaración.</div>
+    </div>
+
+    <div class="card pad" style="margin-bottom:var(--sp)">
+      <h3 class="card-title">Facturas y papeles que SÍ debes juntar</h3>
+      <p class="card-note">Aunque en RESICO no deduces, conserva todo: respalda el origen de tu dinero, sirve para IVA si aplicara, y lo necesitarás si algún día pasas al régimen general.</p>
+      <div class="rlist">
+        <div class="ritem"><div class="main"><div class="rname"><span class="deduc-si">✔</span> CFDI (facturas) de tus ingresos</div><div class="rmeta">Factura del pasaje/servicio; para público en general se hace una factura global.</div></div></div>
+        <div class="ritem"><div class="main"><div class="rname"><span class="deduc-si">✔</span> Facturas de gasolina a tu RFC</div><div class="rmeta">Paga con tarjeta/transferencia (no efectivo); pide factura cada carga.</div></div></div>
+        <div class="ritem"><div class="main"><div class="rname"><span class="deduc-si">✔</span> Facturas de refacciones, servicios y mantenimiento</div><div class="rmeta">Aceite, llantas, balatas, taller, etc., con tu RFC.</div></div></div>
+        <div class="ritem"><div class="main"><div class="rname"><span class="deduc-si">✔</span> Seguro, tenencia, verificación, placas/permiso</div><div class="rmeta">Pólizas y comprobantes oficiales de la unidad.</div></div></div>
+        <div class="ritem"><div class="main"><div class="rname"><span class="deduc-si">✔</span> Comprobantes de pagos de la línea (cuota, tarjeta)</div><div class="rmeta">Transferencias/recibos de lo que pagas para operar.</div></div></div>
+      </div>
+    </div>
+
+    <div class="card pad">
+      <h3 class="card-title">Qué NO te sirve / errores comunes</h3>
+      <div class="rlist">
+        <div class="ritem"><div class="main"><div class="rname"><span class="deduc-no">✘</span> Esperar “deducir” gastos del ISR en RESICO</div><div class="rmeta">No aplica; el impuesto es sobre lo cobrado. La ventaja es la tasa baja.</div></div></div>
+        <div class="ritem"><div class="main"><div class="rname"><span class="deduc-no">✘</span> Pagos en efectivo mayores a $2,000 sin comprobante</div><div class="rmeta">No son comprobables; paga con tarjeta/transferencia.</div></div></div>
+        <div class="ritem"><div class="main"><div class="rname"><span class="deduc-no">✘</span> No emitir CFDI o no declarar</div><div class="rmeta">3 declaraciones omitidas en el año o no presentar la anual te sacan de RESICO.</div></div></div>
+        <div class="ritem"><div class="main"><div class="rname"><span class="deduc-no">✘</span> Gastos personales a nombre del negocio</div><div class="rmeta">No corresponden a la operación de la unidad.</div></div></div>
+      </div>
+      <div class="warn-box" style="margin-top:14px">⚠ Esta guía es informativa y general. El transporte público tiene reglas particulares (IVA exento, facturación del pasaje). Tu <strong>contadora</strong> es quien presenta declaraciones y te dice qué aplica a tu caso; usa esto para entender y tener los papeles listos.</div>
     </div>
   </section>
 
@@ -927,7 +1113,7 @@ function closestBelow(target,values){ if(!values.length) return 0; const g=value
 /* ===== Persistencia ===== */
 const LS={ mov:'cajaMXN_mov_v1',cats:'cajaMXN_cats_v1',den:'cajaMXN_den_v1',theme:'cajaMXN_theme_v1',
   rem:'cajaMXN_pf_v5',paylog:'cajaMXN_paylog_v3',comp:'cajaMXN_comp_v2',ct:'cajaMXN_ct_v3',payer:'cajaMXN_payer_v1',
-  resp:'cajaMXN_resp_v1',oper:'cajaMXN_oper_v1',serv:'cajaMXN_serv_v5',inv:'cajaMXN_inv_v1',fondo:'cajaMXN_fondo_v1',compCats:'cajaMXN_compcats_v1',operCats:'cajaMXN_opercats_v1',prest:'cajaMXN_prest_v1',ahorro:'cajaMXN_ahorro_v1',respNames:'cajaMXN_respnames_v1',caja:'cajaMXN_caja_v1',vehiculo:'cajaMXN_vehiculo_v1' };
+  resp:'cajaMXN_resp_v1',oper:'cajaMXN_oper_v1',serv:'cajaMXN_serv_v5',inv:'cajaMXN_inv_v1',fondo:'cajaMXN_fondo_v1',compCats:'cajaMXN_compcats_v1',operCats:'cajaMXN_opercats_v1',prest:'cajaMXN_prest_v1',ahorro:'cajaMXN_ahorro_v1',respNames:'cajaMXN_respnames_v1',caja:'cajaMXN_caja_v1',vehiculo:'cajaMXN_vehiculo_v1',refac:'cajaMXN_refac_v1',fuel:'cajaMXN_fuel_v1',fiscal:'cajaMXN_fiscal_v1' };
 function load(k,f){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f; }catch(e){ return f; } }
 function save(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
@@ -983,7 +1169,22 @@ let state={
   prest:load(LS.prest,[]), ahorro:load(LS.ahorro,{plan:{monto:0,frecuencia:'semanal'},deposits:[]}), respNames:load(LS.respNames,null),
   caja:load(LS.caja,{aporteFijo:0,aportado:0}),
   vehiculo:load(LS.vehiculo,{placas:'',vin:'',poliza:'',aseguradora:'',color:'',km:''}),
+  refac:load(LS.refac,null), fuel:load(LS.fuel,{capacidad:65,nivel:0,precio:2400}), fiscal:load(LS.fiscal,{rfc:'',nombre:''}),
 };
+function seedRefac(){ return [
+  {id:uid(),item:'Aceite 5W-30 sintético (garrafa ~5 L)',marcas:'Mobil Super / Mobil 1, Castrol, Quaker State, Valvoline, Bardahl',costo:120000},
+  {id:uid(),item:'Filtro de aceite',marcas:'Nissan OEM, Fram, Wix, Mann',costo:18000},
+  {id:uid(),item:'Filtro de aire',marcas:'Nissan OEM, Fram, Wix, Mann',costo:30000},
+  {id:uid(),item:'Filtro de combustible',marcas:'Nissan OEM, Wix',costo:45000},
+  {id:uid(),item:'Bujía de iridio (c/u, lleva 4)',marcas:'NGK, Denso',costo:32000},
+  {id:uid(),item:'Balatas delanteras (juego)',marcas:'Brembo, Wagner, Textar, Nissan OEM',costo:90000},
+  {id:uid(),item:'Llanta 195/80 R15 (c/u)',marcas:'Michelin, Bridgestone, Goodyear, Pirelli, Hankook',costo:260000},
+  {id:uid(),item:'Batería 12 V',marcas:'LTH, Bosch, ACDelco',costo:320000},
+  {id:uid(),item:'Anticongelante / refrigerante (L)',marcas:'Prestone, Bardahl',costo:22000},
+  {id:uid(),item:'Líquido de frenos DOT 4',marcas:'Bosch, Prestone',costo:12000},
+  {id:uid(),item:'Banda de accesorios',marcas:'Gates, Dayco',costo:60000},
+  {id:uid(),item:'Plumas limpiaparabrisas (par)',marcas:'Bosch, Trico',costo:35000},
+]; }
 let movTipo='ingreso',countTipo='ingreso',donutTipo='egreso',remEditId=null,remWeekSel=new Set(),movEditId=null,respEditId=null,ctEditId=null,compEditId=null;
 let semModo={in:'full',eg:'full'};
 
@@ -1017,7 +1218,7 @@ $('#tabs').addEventListener('click',e=>{ const b=e.target.closest('.tab'); if(!b
   $$('.panel').forEach(p=>p.classList.toggle('active',p.id===id));
   if(id==='reportes') renderReportes(); if(id==='movimientos') renderMov(); if(id==='ingresos') renderPeriodo('ingreso'); if(id==='egresos') renderPeriodo('egreso');
   if(id==='pagosfijos') renderPagos(); if(id==='servicios') renderServicios(); if(id==='operador') renderOperador();
-  if(id==='recuperacion') renderRecuperacion(); if(id==='responsabilidades') renderResp(); if(id==='compras') renderCompras(); if(id==='contactos') renderContactos(); if(id==='prestamos') renderPrestamos(); if(id==='vehiculo') renderVehiculo();
+  if(id==='recuperacion') renderRecuperacion(); if(id==='responsabilidades') renderResp(); if(id==='compras') renderCompras(); if(id==='contactos') renderContactos(); if(id==='prestamos') renderPrestamos(); if(id==='vehiculo') renderVehiculo(); if(id==='fiscal') renderFiscal();
 });
 
 /* ============ DESGLOSE ============ */
@@ -1243,29 +1444,39 @@ function renderPagos(){ $('#payerName').value=state.payer||''; let anual=0; stat
 
 /* ============ SERVICIOS ============ */
 const SVC_CATS=['Servicio menor (aceite y filtro)','Servicio mayor (afinación)','Frenos','Transmisión / clutch','Suspensión y dirección','Sistema eléctrico','Revisión general','Otro'];
-$('#svcAdd').addEventListener('click',()=>{ const last=state.serv.length?state.serv[state.serv.length-1].fechaProg:SERV_BASE; state.serv.push({id:uid(),fechaProg:addMonthsISO(last,3),categoria:SVC_CATS[0],estatus:'pendiente',costo:0,fechaReal:'',donde:'',quien:'',notas:''}); save(LS.serv,state.serv); renderServicios(); toast('Servicio agregado'); });
-$('#svcPdf').addEventListener('click',()=>{ if(!state.serv.length){ toast('Sin servicios'); return; } const body=[...state.serv].sort((a,b)=>a.fechaProg<b.fechaProg?-1:1).map(s=>[fmtDate(s.fechaProg),s.categoria,s.estatus==='realizado'?'Realizado':'Pendiente',s.fechaReal?fmtDate(s.fechaReal):'—',s.donde||'—',s.quien||'—',s.costo>0?mxn.format(s.costo/100):'—',s.notas||'—']); const tot=state.serv.reduce((a,s)=>a+(s.costo||0),0); exportTablePDF('Servicios','Programa de mantenimiento — Urvan Panel 2026 (inicio 20 oct 2026)',['Programado','Categoría','Estatus','Realizado','Dónde','Quién','Costo','Notas'],body,{6:{halign:'right',fontStyle:'bold'}},`Servicios realizados: ${state.serv.filter(s=>s.estatus==='realizado').length}   Costo acumulado: ${fmt(tot)}`); });
+function kmActual(){ return parseInt(((state.vehiculo||{}).km||'').toString().replace(/[^0-9]/g,''))||0; }
+function servVencido(s){ if(s.estatus==='realizado') return false; const km=kmActual(); return (s.fechaProg<todayStr()) || (s.kmProg>0 && km>=s.kmProg); }
+function servTrigger(s){ const parts=['📅 '+fmtDate(s.fechaProg)]; if(s.kmProg>0) parts.push('🛞 '+s.kmProg.toLocaleString('es-MX')+' km'); return parts.join(' o ')+(s.kmProg>0?' (lo que ocurra primero)':''); }
+$('#svcKmSave').addEventListener('click',()=>{ state.vehiculo=state.vehiculo||{}; state.vehiculo.km=$('#svcKmActual').value.trim(); save(LS.vehiculo,state.vehiculo); renderServicios(); toast('Km actual guardado'); });
+$('#svcAdd').addEventListener('click',()=>{ const last=state.serv.length?state.serv[state.serv.length-1].fechaProg:SERV_BASE; const lastKm=state.serv.length?(state.serv[state.serv.length-1].kmProg||0):0; state.serv.push({id:uid(),fechaProg:addMonthsISO(last,3),kmProg:lastKm?lastKm+5000:0,categoria:SVC_CATS[0],estatus:'pendiente',costo:0,fechaReal:'',donde:'',quien:'',notas:''}); save(LS.serv,state.serv); renderServicios(); toast('Servicio agregado'); });
+$('#svcPdf').addEventListener('click',()=>{ if(!state.serv.length){ toast('Sin servicios'); return; } const body=[...state.serv].sort((a,b)=>a.fechaProg<b.fechaProg?-1:1).map(s=>[fmtDate(s.fechaProg),s.kmProg>0?s.kmProg.toLocaleString('es-MX'):'—',s.categoria,s.estatus==='realizado'?'Realizado':(servVencido(s)?'Vencido':'Pendiente'),s.fechaReal?fmtDate(s.fechaReal):'—',s.donde||'—',s.costo>0?mxn.format(s.costo/100):'—']); const tot=state.serv.reduce((a,s)=>a+(s.costo||0),0); exportTablePDF('Servicios','Urvan Panel 2026 — vence por fecha o km (lo que ocurra primero) · km actual '+kmActual().toLocaleString('es-MX'),['Fecha prog.','Km objetivo','Categoría','Estatus','Realizado','Dónde','Costo'],body,{6:{halign:'right',fontStyle:'bold'}},`Realizados: ${state.serv.filter(s=>s.estatus==='realizado').length}   Costo acumulado: ${fmt(tot)}`); });
 function renderServicios(){
   state.serv.sort((a,b)=>a.fechaProg<b.fechaProg?-1:1);
-  const today=todayStr(); let nextId=null; for(const s of state.serv){ if(s.estatus!=='realizado'&&s.fechaProg>=today){ nextId=s.id; break; } }
+  const today=todayStr(); const km=kmActual();
+  $('#svcKmActual').value=(state.vehiculo||{}).km||''; $('#svcKmKpi').textContent=km.toLocaleString('es-MX');
+  // Próximo = primero no realizado que vence antes (por fecha o km)
+  let nextId=null; const pend=state.serv.filter(s=>s.estatus!=='realizado');
+  const vencidos=pend.filter(servVencido); if(vencidos.length){ nextId=vencidos[0].id; } else { const fut=pend.filter(s=>s.fechaProg>=today).sort((a,b)=>a.fechaProg<b.fechaProg?-1:1); if(fut.length) nextId=fut[0].id; else if(pend.length) nextId=pend[0].id; }
   const done=state.serv.filter(s=>s.estatus==='realizado').length; const cost=state.serv.reduce((a,s)=>a+(s.costo||0),0);
-  $('#svcStart').textContent=fmtDate(SERV_BASE); $('#svcDone').textContent=done; $('#svcCost').textContent=fmt(cost);
-  const nx=state.serv.find(s=>s.id===nextId); $('#svcNext').textContent=nx?`${fmtDate(nx.fechaProg)} (${relDays(nx.fechaProg)})`:'—';
+  $('#svcDone').textContent=done; $('#svcCost').textContent=fmt(cost);
+  const nx=state.serv.find(s=>s.id===nextId); $('#svcNext').textContent=nx?`${fmtDate(nx.fechaProg)}${nx.kmProg>0?' / '+nx.kmProg.toLocaleString('es-MX')+'km':''}`:'—';
   const list=$('#svcList');
-  list.innerHTML=state.serv.map(s=>{ const late=s.estatus!=='realizado'&&s.fechaProg<today; const isNext=s.id===nextId; const cls=s.estatus==='realizado'?'done':(late?'late':(isNext?'next':'')); const estado=s.estatus==='realizado'?'<span class="pill ok">Realizado</span>':(late?'<span class="pill late">Vencido</span>':(isNext?'<span class="pill next">Próximo</span>':'<span class="pill due">Pendiente</span>'));
+  list.innerHTML=state.serv.map(s=>{ const late=servVencido(s); const isNext=s.id===nextId&&!late; const cls=s.estatus==='realizado'?'done':(late?'late':(isNext?'next':'')); const porKm=late&&s.estatus!=='realizado'&&s.kmProg>0&&km>=s.kmProg&&s.fechaProg>=today; const estado=s.estatus==='realizado'?'<span class="pill ok">Realizado</span>':(late?`<span class="pill late">Vencido${porKm?' (por km)':''}</span>`:(isNext?'<span class="pill next">Próximo</span>':'<span class="pill due">Pendiente</span>'));
     return `<div class="svc ${cls}">
-      <div class="shead"><span class="sdate">${fmtDate(s.fechaProg)}</span> ${estado} <span class="inline-note">${relDays(s.fechaProg)}</span><div style="margin-left:auto;display:flex;gap:6px"><button class="btn ghost sm" data-done="${s.id}">${s.estatus==='realizado'?'Marcar pendiente':'✓ Marcar realizado'}</button><button class="del" data-del="${s.id}">🗑</button></div></div>
+      <div class="shead"><span class="sdate">${fmtDate(s.fechaProg)}</span> ${estado} <span class="inline-note">${servTrigger(s)}</span><div style="margin-left:auto;display:flex;gap:6px"><button class="btn ghost sm" data-done="${s.id}">${s.estatus==='realizado'?'Marcar pendiente':'✓ Marcar realizado'}</button><button class="del" data-del="${s.id}">🗑</button></div></div>
       <div class="sbody">
         <div><label class="fld">Categoría de servicio</label><select class="input mini" data-f="categoria" data-id="${s.id}">${SVC_CATS.map(c=>`<option ${c===s.categoria?'selected':''}>${c}</option>`).join('')}</select></div>
+        <div><label class="fld">Km objetivo</label><input class="input mini" data-f="kmProg" data-id="${s.id}" inputmode="numeric" value="${s.kmProg||''}" placeholder="Ej. 5000"/></div>
         <div><label class="fld">Costo</label><input class="input mini" data-f="costo" data-id="${s.id}" inputmode="decimal" value="${s.costo?(s.costo/100):''}" placeholder="0.00"/></div>
         <div><label class="fld">Fecha realizado</label><input class="input mini" type="date" data-f="fechaReal" data-id="${s.id}" value="${s.fechaReal||''}"/></div>
+        <div><label class="fld">Km al realizar</label><input class="input mini" data-f="kmReal" data-id="${s.id}" inputmode="numeric" value="${s.kmReal||''}" placeholder="Km"/></div>
         <div><label class="fld">Dónde se hizo</label><input class="input mini" data-f="donde" data-id="${s.id}" value="${s.donde||''}" placeholder="Taller / lugar"/></div>
         <div><label class="fld">Quién lleva la unidad</label><input class="input mini" data-f="quien" data-id="${s.id}" value="${s.quien||''}" placeholder="Responsable"/></div>
-        <div style="grid-column:1/-1"><label class="fld">Notas</label><input class="input mini" data-f="notas" data-id="${s.id}" value="${s.notas||''}" placeholder="Refacciones, kilometraje, observaciones…"/></div>
+        <div style="grid-column:1/-1"><label class="fld">Notas</label><input class="input mini" data-f="notas" data-id="${s.id}" value="${s.notas||''}" placeholder="Refacciones, observaciones…"/></div>
       </div></div>`; }).join('')||`<div class="empty"><div class="big">🔧</div>Sin servicios programados.</div>`;
-  list.querySelectorAll('[data-done]').forEach(b=>b.onclick=()=>{ const s=state.serv.find(x=>x.id===b.dataset.done); s.estatus=s.estatus==='realizado'?'pendiente':'realizado'; if(s.estatus==='realizado'&&!s.fechaReal) s.fechaReal=todayStr(); save(LS.serv,state.serv); renderServicios(); });
+  list.querySelectorAll('[data-done]').forEach(b=>b.onclick=()=>{ const s=state.serv.find(x=>x.id===b.dataset.done); s.estatus=s.estatus==='realizado'?'pendiente':'realizado'; if(s.estatus==='realizado'){ if(!s.fechaReal) s.fechaReal=todayStr(); if(!s.kmReal&&km) s.kmReal=km; } save(LS.serv,state.serv); renderServicios(); });
   list.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ if(!confirm('¿Eliminar este servicio?'))return; state.serv=state.serv.filter(x=>x.id!==b.dataset.del); save(LS.serv,state.serv); renderServicios(); });
-  list.querySelectorAll('[data-f]').forEach(el=>{ el.onchange=()=>{ const s=state.serv.find(x=>x.id===el.dataset.id); const f=el.dataset.f; if(f==='costo') s.costo=parseCentavos(el.value); else s[f]=el.value; save(LS.serv,state.serv); if(f==='costo') renderServicios(); }; });
+  list.querySelectorAll('[data-f]').forEach(el=>{ el.onchange=()=>{ const s=state.serv.find(x=>x.id===el.dataset.id); const f=el.dataset.f; if(f==='costo') s.costo=parseCentavos(el.value); else if(f==='kmProg'||f==='kmReal') s[f]=parseInt(el.value.replace(/[^0-9]/g,''))||0; else s[f]=el.value; save(LS.serv,state.serv); if(f==='costo'||f==='kmProg') renderServicios(); }; });
 }
 
 /* ============ OPERADOR ============ */
@@ -1357,8 +1568,27 @@ function renderPrestamos(){
 }
 
 /* ============ VEHÍCULO ============ */
-$('#vhSave').addEventListener('click',()=>{ state.vehiculo={placas:$('#vhPlacas').value.trim(),vin:$('#vhVin').value.trim(),color:$('#vhColor').value.trim(),km:$('#vhKm').value.trim(),aseguradora:$('#vhAseg').value.trim(),poliza:$('#vhPoliza').value.trim()}; save(LS.vehiculo,state.vehiculo); toast('Datos de la unidad guardados'); });
-function renderVehiculo(){ const v=state.vehiculo||{}; $('#vhPlacas').value=v.placas||''; $('#vhVin').value=v.vin||''; $('#vhColor').value=v.color||''; $('#vhKm').value=v.km||''; $('#vhAseg').value=v.aseguradora||''; $('#vhPoliza').value=v.poliza||''; }
+$('#vhSave').addEventListener('click',()=>{ const km=$('#vhKm').value.trim(); state.vehiculo={placas:$('#vhPlacas').value.trim(),vin:$('#vhVin').value.trim(),color:$('#vhColor').value.trim(),km,aseguradora:$('#vhAseg').value.trim(),poliza:$('#vhPoliza').value.trim()}; save(LS.vehiculo,state.vehiculo); toast('Datos de la unidad guardados'); });
+// Gasolina
+function fuelRender(){ const f=state.fuel; $('#fuelCap').value=f.capacidad||''; $('#fuelNivel').value=f.nivel||''; $('#fuelPrecio').value=f.precio?f.precio/100:''; const cap=f.capacidad||0,niv=Math.min(f.nivel||0,cap); const pct=cap>0?Math.round(niv/cap*100):0; $('#fuelFill').style.width=pct+'%'; $('#fuelBarLbl').textContent=`${niv.toFixed(1)} / ${cap} L (${pct}%)`; const falta=Math.max(0,cap-niv); $('#fuelTiene').textContent=niv.toFixed(1)+' L'; $('#fuelFalta').textContent=falta.toFixed(1)+' L'; $('#fuelCostoLlenar').textContent=fmt(Math.round(falta*(f.precio||0))); }
+$('#fuelSave').addEventListener('click',()=>{ state.fuel={capacidad:parseFloat($('#fuelCap').value)||0,nivel:parseFloat($('#fuelNivel').value)||0,precio:parseCentavos($('#fuelPrecio').value)}; save(LS.fuel,state.fuel); fuelRender(); toast('Gasolina actualizada'); });
+$('#fuelNivel').addEventListener('input',()=>{ state.fuel.nivel=parseFloat($('#fuelNivel').value)||0; fuelRender(); });
+$('#fuelCap').addEventListener('input',()=>{ state.fuel.capacidad=parseFloat($('#fuelCap').value)||0; fuelRender(); });
+$('#fuelPrecio').addEventListener('input',()=>{ state.fuel.precio=parseCentavos($('#fuelPrecio').value); fuelRender(); fuelCalc(); });
+document.querySelector('.fuelquick').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return; const frac=parseFloat(b.dataset.fq); state.fuel.nivel=+( (state.fuel.capacidad||0)*frac ).toFixed(1); save(LS.fuel,state.fuel); fuelRender(); });
+function fuelCalc(){ const pre=state.fuel.precio||0; const pesos=parseCentavos($('#fuelPesos').value); const litros=parseFloat($('#fuelLitros').value)||0; let out=[]; if(pre>0&&pesos>0) out.push(`Con ${fmt(pesos)} cargas <strong>${(pesos/pre).toFixed(2)} L</strong>.`); if(pre>0&&litros>0) out.push(`${litros} L cuestan <strong>${fmt(Math.round(litros*pre))}</strong>.`); if(pre<=0) out=['Escribe el precio por litro arriba.']; $('#fuelCalc').innerHTML=out.join(' '); }
+$('#fuelPesos').addEventListener('input',fuelCalc); $('#fuelLitros').addEventListener('input',fuelCalc);
+// Refacciones (marcas + costo editable)
+function renderRefac(){ const cont=$('#refacTable'); cont.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Refacción / consumible</th><th>Marcas recomendadas</th><th style="text-align:right">Costo aprox.</th><th></th></tr></thead><tbody>${state.refac.map(r=>`<tr><td style="white-space:normal;min-width:150px;font-weight:600">${r.item}</td><td style="white-space:normal;min-width:180px"><input class="input mini" data-rf="marcas" data-id="${r.id}" value="${(r.marcas||'').replace(/"/g,'&quot;')}"/></td><td style="width:120px"><div class="money-input sm" style="min-width:110px"><span class="peso">$</span><input class="money" data-rf="costo" data-id="${r.id}" inputmode="decimal" value="${r.costo?(r.costo/100):''}"/></div></td><td style="width:36px"><button class="del" data-rfdel="${r.id}">🗑</button></td></tr>`).join('')}</tbody></table></div>`;
+  cont.querySelectorAll('[data-rf]').forEach(el=>{ el.onchange=()=>{ const r=state.refac.find(x=>x.id===el.dataset.id); const f=el.dataset.rf; if(f==='costo') r.costo=parseCentavos(el.value); else r.marcas=el.value; save(LS.refac,state.refac); }; });
+  cont.querySelectorAll('[data-rfdel]').forEach(b=>b.onclick=()=>{ state.refac=state.refac.filter(x=>x.id!==b.dataset.rfdel); save(LS.refac,state.refac); renderRefac(); }); }
+function renderVehiculo(){ const v=state.vehiculo||{}; $('#vhPlacas').value=v.placas||''; $('#vhVin').value=v.vin||''; $('#vhColor').value=v.color||''; $('#vhKm').value=v.km||''; $('#vhAseg').value=v.aseguradora||''; $('#vhPoliza').value=v.poliza||''; fuelRender(); fuelCalc(); renderRefac(); }
+
+/* ============ FISCAL / SAT (RESICO) ============ */
+$('#fiSave').addEventListener('click',()=>{ state.fiscal={rfc:$('#fiRfc').value.trim(),nombre:$('#fiNombre').value.trim()}; save(LS.fiscal,state.fiscal); toast('Datos fiscales guardados'); });
+function tasaRESICO(ingCent){ const i=ingCent/100; if(i<=25000) return 0.01; if(i<=50000) return 0.011; if(i<=83333.33) return 0.015; if(i<=208333.33) return 0.02; return 0.025; }
+$('#isrCalc').addEventListener('click',()=>{ const ing=parseCentavos($('#isrIngreso').value); if(ing<=0){ toast('Escribe tus ingresos del mes'); return; } const t=tasaRESICO(ing); const isr=Math.round(ing*t); $('#isrTasa').textContent=(t*100).toFixed(2).replace(/\.00$/,'')+'%'; $('#isrMonto').textContent=fmt(isr); $('#isrNeto').textContent=fmt(ing-isr); });
+function renderFiscal(){ const f=state.fiscal||{}; $('#fiRfc').value=f.rfc||''; $('#fiNombre').value=f.nombre||''; }
 
 /* ============ RESPONSABILIDADES ============ */
 function refreshRespNameSelects(){ const opts=state.respNames.map(n=>`<option>${n}</option>`).join(''); const p=$('#respPrin'),a=$('#respApoyo'); const pc=p.value,ac=a.value; p.innerHTML=opts; a.innerHTML=`<option>—</option>`+opts; if(state.respNames.includes(pc)) p.value=pc; if(ac==='—'||state.respNames.includes(ac)) a.value=ac; }
@@ -1449,6 +1679,7 @@ let ctMig=false; state.ct.forEach(c=>{ if(!c.tipo){ c.tipo=c.emg?'emergencia':'o
 let cMig=false; state.comp.forEach(c=>{ if(c.prioridad===undefined){ c.prioridad='Media'; c.quien=c.quien||''; c.fecha=c.fecha||''; c.donde=c.donde||''; c.comprobante=c.comprobante||'Ninguno'; cMig=true; } if(!state.compCats.includes(c.categoria)){ state.compCats.push(c.categoria); cMig=true; } }); if(cMig){ save(LS.comp,state.comp); save(LS.compCats,state.compCats); }
 if(!state.resp){ state.resp=seedResp(); save(LS.resp,state.resp); }
 if(!state.respNames){ state.respNames=['Kevin','Operador','Contadora']; save(LS.respNames,state.respNames); }
+if(!state.refac){ state.refac=seedRefac(); save(LS.refac,state.refac); }
 if(!state.serv){ state.serv=seedServ(); save(LS.serv,state.serv); }
 
 /* ===== INIT ===== */
