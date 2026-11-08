@@ -1,5 +1,5 @@
 /* Caja MXN — Service Worker (offline) · v17 robusto */
-const CACHE = 'cajamxn-v20';
+const CACHE = 'cajamxn-v21';
 const CORE = [
   './',
   './index.html',
@@ -7,9 +7,9 @@ const CORE = [
   './icon-192.png',
   './icon-512.png',
   './icon-180.png',
-  './lib/chart.umd.js',
-  './lib/jspdf.umd.min.js',
-  './lib/jspdf.plugin.autotable.min.js',
+  './chart.umd.js',
+  './jspdf.umd.min.js',
+  './jspdf.plugin.autotable.min.js',
 ];
 
 // Instala: guarda cada archivo por separado (si uno falla, NO se cae todo)
