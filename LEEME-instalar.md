@@ -1,8 +1,14 @@
-# Caja MXN — App sin internet e instalable en el teléfono
+# Caja MXN — App sin internet e instalable (versión corregida v18)
 
-Esta versión funciona **100% sin conexión** (no depende de internet) y se puede **instalar en tu teléfono** como una app.
+## ¿Por qué antes no abría sin internet?
 
-## Archivos (súbelos TODOS juntos, respetando la carpeta `lib`)
+Casi siempre por una de dos razones:
+1. **Se quedó pegada la versión vieja** del "guardado offline" en el teléfono, o
+2. **Algún archivo no subió bien** (sobre todo la carpeta `lib/`), y el guardado falló completo.
+
+Esta versión lo corrige: se **limpia sola** la versión vieja, guarda archivo por archivo (si uno falla no se cae todo), te muestra en pantalla **"✓ Lista para usar sin internet"** cuando ya quedó guardada, y te aparece un **botón "Instalar"** solo.
+
+## Archivos (súbelos TODOS, con la carpeta `lib`)
 
 ```
 index.html
@@ -16,30 +22,27 @@ lib/jspdf.umd.min.js
 lib/jspdf.plugin.autotable.min.js
 ```
 
-> Importante: `sw.js`, `manifest.webmanifest` y la carpeta `lib/` deben quedar **junto a** `index.html` (en la misma carpeta/raíz).
+## Pasos (hazlos en orden)
 
-## Subir a GitHub Pages
+### 1) En GitHub
+- **Add file → Upload files**, arrastra todos los archivos **y la carpeta `lib`**, acepta reemplazar, **Commit changes**.
+- Verifica que en tu repo quede la carpeta **`lib`** al lado de `index.html` (ábrela: deben verse 3 archivos).
 
-1. Sube todos los archivos a tu repositorio (arrastra la carpeta completa).
-2. En **Settings → Pages**, elige la rama `main` y carpeta `/root`.
-3. Abre tu liga `https://<tu-usuario>.github.io/<tu-repo>/` en el teléfono **una vez con internet** (para que se guarde en el teléfono).
+### 2) En el teléfono — BORRA lo viejo primero
+- Si ya tenías el ícono instalado, **desinstálalo** (mantén presionado → quitar/desinstalar).
+- Abre tu liga en el navegador y **borra los datos del sitio**:
+  - **Android (Chrome):** candado ⓘ junto a la dirección → *Permisos/Datos del sitio* → *Borrar y restablecer* (o Configuración → Privacidad → Borrar datos de navegación).
+  - **iPhone (Safari):** Ajustes → Safari → Avanzado → Datos de sitios web → busca tu página → eliminar.
 
-## Instalar en el teléfono
+### 3) Instalar
+- Abre la liga **con internet**. Espera a ver abajo el aviso verde **"✓ Lista para usar sin internet"**.
+- Aparecerá un botón **"Instalar"** (o en iPhone: **Compartir → Agregar a inicio**). Tócalo.
 
-**Android (Chrome):** abre la liga → menú ⋮ → **“Instalar aplicación”** o **“Agregar a pantalla de inicio”**.
+### 4) Probar
+- Cierra, **quita el internet** y abre el ícono. Debe cargar.
 
-**iPhone (Safari):** abre la liga → botón **Compartir** (cuadro con flecha) → **“Agregar a inicio”**.
+## Comprobar que `lib` subió bien
+Con internet, entra a **Reportes**: si ves las gráficas y "Exportar PDF" funciona, `lib` quedó bien. Si no, la carpeta `lib` no está junto a `index.html`.
 
-Queda un ícono en tu pantalla. Al abrirlo se ve como app (pantalla completa) y **funciona sin señal**.
-
-## ¿Cómo funciona sin internet?
-
-- Todos tus datos se guardan en el propio teléfono (no se envían a ningún lado).
-- Las librerías de gráficas y PDF van **incluidas** en los archivos (carpeta `lib`), no se descargan de internet.
-- Un *service worker* (`sw.js`) guarda la app en el teléfono la primera vez que la abres con internet; después abre aunque no tengas señal.
-
-## Notas
-
-- La primera carga necesita internet **una sola vez** (para guardar la app). Después, offline.
-- Si actualizas la app, vuelve a abrirla con internet una vez para que tome la nueva versión (el `sw.js` usa versión `cajamxn-v16`; súbela con número nuevo cuando cambies algo).
-- También puedes abrir `index.html` directo desde los Archivos del teléfono y funciona, pero instalarla desde GitHub Pages da la mejor experiencia.
+## Si actualizas la app en el futuro
+Sube el `sw.js` cambiando su versión (`cajamxn-v18` → `v19`) para forzar que el teléfono tome la nueva.
